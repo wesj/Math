@@ -1,0 +1,169 @@
+.selected {
+  border-bottom: 1px solid red;
+  border-right: 1px solid red;
+}
+.pass { color: green; }
+.fail { color: red; }
+.mathdiv {
+  padding: 5px;
+}
+.empty {
+  border: 1px solid gray;
+  min-width: 1em;
+  min-height: 1em;
+}
+.lhs { color: green; }
+.rhs { color: blue; }
+.equality { color: orange; }
+.toolbar {
+  height: 3em;
+  width: 100%;
+  border-bottom: 2px solid black;
+  background-image: -moz-linear-gradient(darkgray, gray);
+}
+.toolbarbutton {
+  display: inline-block;
+  width: 3em;
+  height: 2em;
+  border-right: 1px solid black;
+  text-align: center;
+  padding-top: 1em;
+}
+#plot.toolbarbutton {
+  background-image: url(PlotIcon.svg);
+  background-size: 100% 100%;
+}
+
+ol {
+  width: 50%;
+  height: 92%;
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+.window {
+  border-bottom: 1px dashed lightgray;
+  /*
+  position: absolute;
+  min-width: 150px;
+  border-radius: 0px 8px 8px 0px;
+  -moz-transition-property: background-color, -moz-box-shadow;
+  -moz-transition-duration: 250ms;
+  */
+  min-height: 3em;
+  overflow: visible;
+}
+
+.window.active {
+  border-bottom: 1px solid lightgray;
+  /*
+  border: 1px solid black;
+  background-color: white;
+  resize: both;
+  */
+  -moz-transition: box-shadow 200ms;
+  box-shadow: none;
+}
+/*
+.window:hover {
+  -moz-box-shadow: 0px 0px 2px black;
+}
+
+.window:not(.active):hover {
+  background-color: rgba(255,255,255, 0.5);
+}
+*/
+.window .titlebar {
+  float: right;
+  /*
+  border-radius: 0px 8px 8px 0px;
+  visibility: hidden;
+  min-height: 2em;
+  height: 100%;
+  text-align: right;
+  background-color: lightgray;
+  border-left: 1px solid black;
+  cursor: move;
+  */
+}
+
+.window.active > .titlebar {
+  visibility: visible;
+}
+
+.window .content {
+  padding: 0.5em 3px 3px;
+}
+
+.window .secondary {
+  display: none;
+}
+
+.window .errors {
+  padding: 5px;
+  font-size: xx-small;
+  font-family: sans-serif;
+  color: red;
+}
+
+.window.active .secondary {
+  display: block;
+}
+
+.closebutton {
+  background-image: url(ButtonClose.png);
+  background-size: 16px 16px;
+  opacity: 0.25;
+  width: 32px;
+  height: 3em;
+  display: inline-block;
+  background-position: center center;
+  border-left: 1px solid gray;
+  background-repeat: no-repeat;
+  cursor: pointer;
+/*
+  background-position: top left;
+  -moz-transform: translate(8px, -8px);
+*/
+  -moz-transition: opacity 200ms;
+}
+
+.closebutton:hover {
+  opacity: 1;
+}
+
+#tests {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+}
+
+#tests li { opacity: 1; -moz-transition: opacity 1s; }
+#tests.hidden li { opacity: 0; }
+#tests li { display: none; }
+#tests li.fail,
+#tests li:last-child { display: block; }
+
+.plotLabels {
+  float: left;
+  margin: 0px;
+  padding: 0px;
+  list-style-type: none;
+  list-style-image: none;
+}
+
+#details {
+  float: right;
+  padding: 10px;
+  width: -moz-calc(50% - 20px);
+  height: 92%;
+  box-shadow: inset 3px 0px 5px -3px black;
+}
+
+h3 {
+  font-family: sans-serif;
+  font-size: large;
+  font-weight: bold;
+  border-bottom: 2px solid black;
+}

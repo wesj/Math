@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="math.css" />
+    <script type="text/javascript" src="Dragger.js"></script>
+    <script type="text/javascript" src="MathEditor.js"></script>
+    <script type="text/javascript" src="Plot.js"></script>
+    <script type="text/javascript" src="Editor.js"></script>
+    <script type="text/javascript" src="tests.js"></script>
+    <script type="text/javascript;version=1.8">
+    /* TODO:
+      plus-minus support
+      clicking in element
+      backspace problems
+      text input
+      save/restore
+      plotting/graphing
+      simplify "is this a function/var. get me the root elt of this one." calls
+      allow text input
+      allow moving equations around? - have to ensure they are evaluated in the right order
+      solve equations?
+      y = x^2 should convert to a function?
+      a single line failing shouldn't keep other, unrelated lines from evaling
+      matrix math - started, but we need a matrix class, matrix multiplications should convert to different js
+                    method for resizing?
+                    vector support
+      complex number support?
+    */
+      function start() {
+        Editor.init();
+        var bcr = document.getElementById("output").getBoundingClientRect();
+        Editor.addEquation(null, 5, bcr.top + 5);
+      }
+    </script>
+  </head>
+  <body onload="start();" style="margin: 0px;">
+    <div class="toolbar">
+      <span class="toolbarbutton" id="plot" onclick="event.stopPropagation(); Editor.addPlot();"></span>
+    </div>
+    <div id="details"></div>
+    <ol id="output"></ol>
+    <ul id="tests" class="hidden"></ul>
+  </body>
+</html>

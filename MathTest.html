@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="Math.css" />
+    <script type="text/javascript" src="Dragger.js"></script>
+    <script type="text/javascript" src="MathEditor.js"></script>
+    <script type="text/javascript" src="Plot.js"></script>
+    <script type="text/javascript" src="Editor.js"></script>
+    <script type="text/javascript" src="tests.js"></script>
+    <script type="text/javascript;version=1.8">
+      function start() {
+        Editor.init();
+        runTests(document.getElementById("tests"));
+      }
+    </script>
+  </head>
+  <body onload="start();" style="margin: 0px;">
+    <div class="toolbar">
+      <span class="toolbarbutton" id="plot" onclick="event.stopPropagation(); Editor.addPlot();"></span>
+    </div><ol id="output"></ol><ul id="tests"></ul>
+  </body>
+</html>

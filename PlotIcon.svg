@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="640" height="480" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <defs>
+  <marker refY="50" refX="50" markerHeight="5" markerWidth="5" viewBox="0 0 100 100" se_type="rightarrow" orient="auto" markerUnits="strokeWidth" id="se_marker_end_svg_2">
+   <path stroke-width="10" stroke="#000000" fill="#000000" d="m100,50l-100,40l30,-40l-30,-40z"/>
+  </marker>
+  <marker refY="50" refX="50" markerHeight="5" markerWidth="5" viewBox="0 0 100 100" se_type="rightarrow" orient="auto" markerUnits="strokeWidth" id="se_marker_end_svg_1">
+   <path stroke-width="10" stroke="#000000" fill="#000000" d="m100,50l-100,40l30,-40l-30,-40z"/>
+  </marker>
+ </defs>
+ <g>
+  <title>Layer 1</title>
+  <line marker-end="url(#se_marker_end_svg_1)" id="svg_1" y2="36" x2="115" y1="440.999989" x1="115" stroke-width="5" stroke="#000000" fill="none"/>
+  <line marker-end="url(#se_marker_end_svg_2)" id="svg_2" y2="395" x2="548" y1="394" x1="38" stroke-width="5" stroke="#000000" fill="none"/>
+  <path id="svg_3" d="m117,392c84,-37 95,-203.756958 142,-203.752975c47,0.003983 48,132.031845 121,126.195236c73,-5.83667 137,-267.442245 137,-267.442245" stroke-width="5" stroke="#ff0000" fill="none"/>
+  <text transform="matrix(3.43003, 0, 0, 3.43003, -371.036, -320.764)" xml:space="preserve" text-anchor="middle" font-family="Sans-serif" font-size="24" id="svg_4" y="126" x="171" stroke-width="0" stroke="#000000" fill="#000000">f(x)</text>
+  <path opacity="0.25" id="svg_5" d="m115.5,394c84,-37 98,-202.757004 145,-202.753006c47,0.004013 48,132.031998 121,126.194992c19.4375,-2.975006 92.71875,-59.858124 135.859375,-269.474854c7.140625,-24.61676 -6.859375,280.032867 -2.859375,347.032867" stroke-width="5" stroke="#ff0000" fill="#ff0000"/>
+ </g>
+</svg>
