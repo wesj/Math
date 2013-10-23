@@ -42,6 +42,7 @@ var Editor = {
         if (t && t.classList && t.classList.contains("window")) {
           this._currentWindow = t;
           this._currentWindow.setCursor(aEvent.target);
+          console.log(aEvent.target.nodeName);
         } else {
           this.addEquation(null, aEvent.clientX, aEvent.clientY);
         }

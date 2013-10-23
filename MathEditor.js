@@ -28,6 +28,13 @@ MathEditor.prototype = {
     if (aContent) tag.textContent = aContent;
     return tag;
   },
+  isFenced: function(node) {
+    var n = node.parentNode;
+    while(n && n.nodeName != "mfenced") {
+      n = n.parentNode;
+    }
+    return n;
+  },
   deselect: function() {
     this.setCursor(null, 0);
   },
@@ -88,8 +95,26 @@ MathEditor.prototype = {
       newNode = NumberEditor.handleKey(c, node);
       this.setCursor(newNode, 0);
       //newNode = this.addNumber(c, node);
-    } else if (c == "+" || c == "-" || c == "(" || c == ")" || c == ",") {
+    } else if (c == "+" || c == "-" || c == ",") {
       newNode = this.appendNewNode("mo", c, node);
+    } else if (c == "(") {
+      newNode = this.appendNewNode("mfenced", "", node);
+      newNode.setAttribute("open", c);
+      newNode.setAttribute("close", ")");
+      if (false && this.looksLikeFunction(node)) {
+        newNode.setAttribute("separators", ",");
+        newNode.setAttribute("class", "function");
+      } else {
+        newNode.setAttribute("class", "bracket");
+        newNode.setAttribute("separators", "");
+      }
+    } else if (c == ")") {
+      var fence = this.isFenced(node);
+      var mrow = this.createNode('mi');
+      fence.parentNode.insertBefore(mrow, fence.nextSibling);
+      this.setCursor(mrow);
+      newNode = mrow;
+      console.log("New: " + newNode.nodeName);
     } else if (c == "*") {
       newNode = this.appendNewNode("mo", invisibleTimes, node);
     } else if (c == "/") {
@@ -118,6 +143,9 @@ MathEditor.prototype = {
       newNode = mrow;
     } else if (c == "=") {
       if (!eq) {
+        if (this.isEmpty(node)) {
+          node.parentNode.removeChild(node);
+        }
         eq = this.appendNewNode("mo", c, mathElt);
         eq.classList.add("equality");
         if (isFunction || isVar) {
@@ -261,7 +289,7 @@ MathEditor.prototype = {
     return res;
   },
   isEmpty: function(aNode) {
-    if (aNode.nodeName == "mrow")
+    if (aNode.nodeName == "mrow" || aNode.nodeName == "mfenced")
       return false;
     return !aNode.textContent || aNode.textContent == emptyBox;
   },
@@ -287,7 +315,12 @@ MathEditor.prototype = {
   appendNewNode: function(aName, aChar, aNode) {
     var newNode = MathEditor.prototype.createNode(aName);
     newNode.textContent = aChar;
-    if (aNode.nodeName == "mrow" || aNode.nodeName == "math" || aNode.nodeName == "mtable" || aNode.nodeName == "mtr" || aNode.nodeName == "mtd") {
+    if (aNode.nodeName == "mfenced" ||
+        aNode.nodeName == "mrow" ||
+        aNode.nodeName == "math" ||
+        aNode.nodeName == "mtable" ||
+        aNode.nodeName == "mtr" ||
+        aNode.nodeName == "mtd") {
       aNode.appendChild(newNode);
     } else if (aNode.parentNode) {
       if (aNode.nextSibling) aNode.parentNode.insertBefore(newNode, aNode.nextSibling);
@@ -368,14 +401,19 @@ function EditorNode(aType, aKey) {
 
 EditorNode.prototype = {
   _handleKey: function(aChar, aNode) {
+    console.log("key " + aChar);
     for (var i = 0; i < this._ops.length; i++) {
+      console.log("ops " + JSON.stringify(this._ops[i]));
       if (this._ops[i].keys.test(aChar)) {
         return this._ops[i].handleKey(aChar, aNode);
       }
     }
 
-    if (this.nodeTypes.indexOf(aNode.nodeName) > -1)
+    if (this.nodeTypes.indexOf(aNode.nodeName) > -1) {
+      console.log("append " + aChar);
       return this.appendToNode(aChar, aNode)
+    }
+    console.log("Add " + aChar);
     return this.appendNewNode(this.nodeTypes[0], aChar, aNode);
   },
   handleKey: function(aChar, aNode) {
@@ -398,7 +436,12 @@ EditorNode.prototype = {
   appendNewNode: function(aName, aChar, aNode) {
     var newNode = MathEditor.prototype.createNode(aName);
     newNode.textContent = aChar;
-    if (aNode.nodeName == "mrow" || aNode.nodeName == "math" || aNode.nodeName == "mtable" || aNode.nodeName == "mtr" || aNode.nodeName == "mtd") {
+    if (aNode.nodeName == "mrow" ||
+        aNode.nodeName == "math" ||
+        aNode.nodeName == "mfenced" ||
+        aNode.nodeName == "mtable" ||
+        aNode.nodeName == "mtr" ||
+        aNode.nodeName == "mtd") {
       aNode.appendChild(newNode);
     } else if (aNode.parentNode) {
       if (aNode.nextSibling) aNode.parentNode.insertBefore(newNode, aNode.nextSibling);
@@ -451,8 +494,12 @@ MathNodeEditor.register(RowEditor);
 
 var VariableEditor = new EditorNode("mi", /[a-zA-Z]/);
 VariableEditor.handleKey = function(aChar, aNode) {
-  if (MathEditor.prototype.isEmpty(aNode))
+  if (MathEditor.prototype.isEmpty(aNode)) {
+    console.log("replace");
     return this.replaceNode(this.nodeTypes[0], aChar, aNode);
+  }
+  else if (aNode.nodeName == "mn")
+    return MathEditor.prototype.multiplyCurrent(aChar, aNode, this.nodeTypes[0]);
   //else if (this.nodeTypes.indexOf(aNode.nodeName) == -1)
   //  return this.multiplyCurrent(aChar, aNode, this.nodeTypes[0]);
   else
@@ -482,6 +529,11 @@ var OperatorEditor = new EditorNode("mo", /\+\-\*\//);
 OperatorEditor.toJSString = function(aNode) {
   if (aNode.textContent == invisibleTimes) return "*";
   return this._toJSString(aNode);
+}
+OperatorEditor.handleKey = function(aChar, aNode) {
+//  if (aNode.nodeName == "mfenced")
+//    return MathEditor.prototype.multiplyCurrent(aChar, aNode, this.nodeTypes[0]);
+  return this._handleKey(aChar, aNode);
 }
 MathNodeEditor.register(OperatorEditor);
 
@@ -526,3 +578,9 @@ SqrtEditor.toJSString = function(aNode) {
   return "Math.sqrt(" + this._getChildString(aNode) + ")";
 }
 OperatorEditor.register(SqrtEditor);
+
+var FencedEditor = new EditorNode("mfenced", /\(/);
+FencedEditor.toJSString = function(aNode) {
+  return "(" + this._getChildString(aNode) + ")";
+}
+OperatorEditor.register(FencedEditor);

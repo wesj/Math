@@ -75,6 +75,11 @@ KeyPressTest.prototype = {
     result += is(aNode.nodeName, aTest.name, "First child is an " + aTest.name + " element");
     if (aTest.class)
       result += is(aNode.classList, aTest.class, "Node has correct classes");
+    if (aTest.attrs) {
+      for (var i in aTest.attrs) {
+        result += is(aNode.getAttribute(i), aTest.attrs[i], "Attribute " + i + " is " + aTest.attrs[i]);
+      }
+    }
     if (aTest.children) {
       result += is(aNode.childNodes.length, aTest.children.length, "Row has correct number of children");
       for (var i = 0; i < aTest.children.length; i++) {
@@ -291,9 +296,9 @@ tests.push(new KeyPressTest("Test pressing the '4\\=' keys", "\\4=",
 tests.push(new KeyPressTest("Test pressing the 'f(x)=x' keys", "f(x)=x",
   [{name: "mrow", class: "lhs", children: [
       {name: "mi", text: "f"},
-      {name: "mo", text: "("},
-      {name: "mi", text: "x"},
-      {name: "mo", text: ")"},
+      {name: "mfenced", text: "", open: "(", close: ")", separators: "", children: [
+        {name: "mi", text: "x"},
+      ]}
   ]},
   {name: "mo", class: "equality", text:"="},
   {name: "mrow", class: "rhs", children: [
@@ -312,9 +317,9 @@ tests.push(new KeyPressTest("Test pressing the 'x=3' keys", "x=3",
 tests.push(new KeyPressTest("Test pressing the 'cos(0)=' keys", "cos(0)=",
   [{name: "mrow", class: "lhs", children: [
       {name: "mi", text: "cos"},
-      {name: "mo", text: "("},
-      {name: "mn", text: "0"},
-      {name: "mo", text: ")"},
+      {name: "mfenced", text: "", open: "(", close: ")", separators: "", children: [
+        {name: "mn", text: "0"},
+      ]}
   ]},
   {name: "mo", class: "equality", text:"="},
   {name: "mrow", class: "rhs generated", children: [
@@ -324,9 +329,9 @@ tests.push(new KeyPressTest("Test pressing the 'cos(0)=' keys", "cos(0)=",
 tests.push(new KeyPressTest("Test pressing the 'sin(0)=' keys", "sin(0)=",
   [{name: "mrow", class: "lhs", children: [
       {name: "mi", text: "sin"},
-      {name: "mo", text: "("},
-      {name: "mn", text: "0"},
-      {name: "mo", text: ")"},
+      {name: "mfenced", text: "", open: "(", close: ")", separators: "", children: [
+        {name: "mn", text: "0"},
+      ]}
   ]},
   {name: "mo", class: "equality", text:"="},
   {name: "mrow", class: "rhs generated", children: [
