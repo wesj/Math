@@ -184,8 +184,13 @@ function ok(aTest, aText) {
 
 function is(one, two, aText) {
   var text = "<li ";
-  if (one == two) text += "class='pass'>PASS: " + aText + " (" + one + " == " + two;
-  else text += "class='fail'>FAIL: " + aText + " (" + one + " != " + two;
+  if (one == two) {
+    // console.log("PASS: " + aText + ": " + one + " == " + two)
+    text += "class='pass'>PASS: " + aText + " (" + one + " == " + two;
+  } else {
+    console.log("FAIL: " + aText + ": " + one + " != " + two)
+    text += "class='fail'>FAIL: " + aText + " (" + one + " != " + two;
+  }
   text += ")</li>";
   return text;
 }
@@ -246,7 +251,6 @@ tests.push(new KeyPressTest("Test pressing the '1+1=+1' keys", "1+1=+1",
   {name: "mrow", class: "rhs generated", children: [
     {name: "mn", text:"3"}
   ]}], "1+1+1;"));
-
 tests.push(new KeyPressTest("Test pressing the '2^2=' keys", "2^2=",
   [{name: "mrow", class: "lhs", children: [
       {name: "msup", children:[
@@ -281,7 +285,6 @@ tests.push(new KeyPressTest("Test pressing the '\\4=' keys", "\\4=",
   {name: "mrow", class: "rhs generated", children: [
     {name: "mn", text:"2"}
   ]}], "Math.sqrt(4);"));
-
 tests.push(new KeyPressTest("Test pressing the '4\\=' keys", "\\4=",
   [{name: "mrow", class: "lhs", children: [
       {name: "msqrt", children:[
@@ -313,7 +316,6 @@ tests.push(new KeyPressTest("Test pressing the 'x=3' keys", "x=3",
   {name: "mrow", class: "rhs", children: [
     {name: "mn", text:"3"}
   ]}], "var x=3;"));
-
 tests.push(new KeyPressTest("Test pressing the 'cos(0)=' keys", "cos(0)=",
   [{name: "mrow", class: "lhs", children: [
       {name: "mi", text: "cos"},
@@ -351,7 +353,6 @@ tests.push(new KeyPressTest("Test pressing the 'e^0=' keys", "e^0=",
   {name: "mrow", class: "rhs generated", children: [
     {name: "mn", text:"1"}
   ]}], "Math.exp(0);"));
-
 tests.push(new KeyPressTest("Test pressing the 'e^x^2' keys", "e^x^2",
   [{name: "mrow", class: "lhs", children: [
     {name: "msup", children: [
@@ -389,7 +390,6 @@ tests.push(new TestSelection("Test 1+2 and left arrow key", "1+2", "LLLRR", [{ n
                                                                              { name: "mn", text: "1"},
                                                                              { name: "mo", text: "+"},
                                                                              { name: "mn", text: "2"}]));
-
 tests.push(new TestSelection("Test 1^x+2 and left arrow key 3x", "1^x  +2", "LLLLLRRRR", [{name: "mo", text: "+"},
                                                                                           {name: "mi", text: "x"},
                                                                                           {name: "mrow", text: "x"},

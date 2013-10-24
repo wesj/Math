@@ -95,52 +95,12 @@ MathEditor.prototype = {
       newNode = NumberEditor.handleKey(c, node);
       this.setCursor(newNode, 0);
       //newNode = this.addNumber(c, node);
-    } else if (c == "+" || c == "-" || c == ",") {
-      newNode = this.appendNewNode("mo", c, node);
-    } else if (c == "(") {
-      newNode = this.appendNewNode("mfenced", "", node);
-      newNode.setAttribute("open", c);
-      newNode.setAttribute("close", ")");
-      if (false && this.looksLikeFunction(node)) {
-        newNode.setAttribute("separators", ",");
-        newNode.setAttribute("class", "function");
-      } else {
-        newNode.setAttribute("class", "bracket");
-        newNode.setAttribute("separators", "");
-      }
-    } else if (c == ")") {
-      var fence = this.isFenced(node);
-      var mrow = this.createNode('mi');
-      fence.parentNode.insertBefore(mrow, fence.nextSibling);
-      this.setCursor(mrow);
-      newNode = mrow;
-      console.log("New: " + newNode.nodeName);
-    } else if (c == "*") {
-      newNode = this.appendNewNode("mo", invisibleTimes, node);
-    } else if (c == "/") {
-      var mfrac = this.createNode("mfrac");
-      var mrow = this.createNode("mrow");
-      node.parentNode.insertBefore(mfrac, node);
-      mfrac.appendChild(node);
-      mfrac.appendChild(mrow);
-      this.setCursor(mrow);
-      newNode = mrow;
-    } else if (c == "^") {
-      var mfrac = this.createNode("msup");
-      var mrow = this.createNode("mrow");
-      node.parentNode.insertBefore(mfrac, node);
-      mfrac.appendChild(node);
-      mfrac.appendChild(mrow);
-      this.setCursor(mrow);
-      newNode = mrow;
-    } else if (c == "_") {
-      var mfrac = this.createNode("msub");
-      var mrow = this.createNode("mrow");
-      node.parentNode.insertBefore(mfrac, node);
-      mfrac.appendChild(node);
-      mfrac.appendChild(mrow);
-      this.setCursor(mrow);
-      newNode = mrow;
+    } else if (OperatorEditor.keys.some(function(reg) { return reg.test(c); })) {
+      newNode = OperatorEditor.handleKey(c, node);
+      this.setCursor(newNode, 0);
+    } else if (SubEditor.keys.some(function(reg) { return reg.test(c); })) {
+      newNode = SubEditor.handleKey(c, node);
+      this.setCursor(newNode, 0);
     } else if (c == "=") {
       if (!eq) {
         if (this.isEmpty(node)) {
@@ -153,15 +113,6 @@ MathEditor.prototype = {
           this.rhs.classList.add("rhs");
         }
       }
-      newNode = node;
-    } else if (c == "\\") {
-      var msqrt = this.createNode("msqrt");
-      if (node.getAttribute("class") == ("lhs selected")) {
-        node = this.appendNewNode("mi", emptyBox, node);
-      }
-      node.parentNode.insertBefore(msqrt, node);
-      msqrt.appendChild(node);
-      this.setCursor(node);
       newNode = node;
     } else if (c == " ") {
       this.setCursor(node.parentNode, 0);
@@ -397,23 +348,21 @@ function EditorNode(aType, aKey) {
   this.nodeTypes = [aType];
   this.keys = [aKey];
   this._ops = [];
+  this.canAppend = true;
 }
 
 EditorNode.prototype = {
   _handleKey: function(aChar, aNode) {
-    console.log("key " + aChar);
     for (var i = 0; i < this._ops.length; i++) {
-      console.log("ops " + JSON.stringify(this._ops[i]));
-      if (this._ops[i].keys.test(aChar)) {
+      if (this._ops[i].keys[0].test(aChar)) {
         return this._ops[i].handleKey(aChar, aNode);
       }
     }
 
-    if (this.nodeTypes.indexOf(aNode.nodeName) > -1) {
-      console.log("append " + aChar);
+    if (this.canAppend && this.nodeTypes.indexOf(aNode.nodeName) > -1) {
       return this.appendToNode(aChar, aNode)
     }
-    console.log("Add " + aChar);
+
     return this.appendNewNode(this.nodeTypes[0], aChar, aNode);
   },
   handleKey: function(aChar, aNode) {
@@ -495,7 +444,6 @@ MathNodeEditor.register(RowEditor);
 var VariableEditor = new EditorNode("mi", /[a-zA-Z]/);
 VariableEditor.handleKey = function(aChar, aNode) {
   if (MathEditor.prototype.isEmpty(aNode)) {
-    console.log("replace");
     return this.replaceNode(this.nodeTypes[0], aChar, aNode);
   }
   else if (aNode.nodeName == "mn")
@@ -525,19 +473,28 @@ NumberEditor.handleKey = function(aChar, aNode) {
 }
 MathNodeEditor.register(NumberEditor);
 
-var OperatorEditor = new EditorNode("mo", /\+\-\*\//);
+var OperatorEditor = new EditorNode("mo", /[\+\-\*,]/);
+OperatorEditor.canAppend = false;
+OperatorEditor.handleKey = function(aChar, aNode) {
+  if (aChar == "*")
+    aChar = invisibleTimes;
+  return this._handleKey(aChar, aNode);
+}
 OperatorEditor.toJSString = function(aNode) {
   if (aNode.textContent == invisibleTimes) return "*";
   return this._toJSString(aNode);
 }
-OperatorEditor.handleKey = function(aChar, aNode) {
-//  if (aNode.nodeName == "mfenced")
-//    return MathEditor.prototype.multiplyCurrent(aChar, aNode, this.nodeTypes[0]);
-  return this._handleKey(aChar, aNode);
-}
 MathNodeEditor.register(OperatorEditor);
 
 var FractionEditor = new EditorNode("mfrac", /\//);
+FractionEditor.handleKey = function(aChar, aNode) {
+  var mfrac = MathEditor.prototype.createNode("mfrac");
+  var mrow = MathEditor.prototype.createNode("mrow");
+  aNode.parentNode.insertBefore(mfrac, aNode);
+  mfrac.appendChild(aNode);
+  mfrac.appendChild(mrow);
+  return mrow;
+}
 FractionEditor.toJSString =function(aNode) {
   var txt = MathEditor.prototype.getJSFor(aNode.childNodes[0]);
   txt += "/";
@@ -547,6 +504,14 @@ FractionEditor.toJSString =function(aNode) {
 OperatorEditor.register(FractionEditor);
 
 var ExponentEditor = new EditorNode("msup", /\^/);
+ExponentEditor.handleKey = function(aChar, aNode) {
+  var mfrac = MathEditor.prototype.createNode("msup");
+  var mrow = MathEditor.prototype.createNode("mrow");
+  aNode.parentNode.insertBefore(mfrac, aNode);
+  mfrac.appendChild(aNode);
+  mfrac.appendChild(mrow);
+  return mrow;
+}
 ExponentEditor.toJSString = function(aNode) {
   var txt = "Math.pow(";
   var drawBrackets = true;
@@ -571,15 +536,48 @@ SubEditor.toJSString = function(aNode) {
   //txt += MathEditor.prototype.getJSFor(aNode.childNodes[1]);
   return txt;
 }
+SubEditor.handleKey = function(aChar, aNode) {
+  var mfrac = MathEditor.prototype.createNode("msub");
+  var mrow = MathEditor.prototype.createNode("mrow");
+  aNode.parentNode.insertBefore(mfrac, aNode);
+  mfrac.appendChild(aNode);
+  mfrac.appendChild(mrow);
+  return mrow;
+}
 MathNodeEditor.register(SubEditor);
 
 var SqrtEditor = new EditorNode("msqrt", /\\/);
+SqrtEditor.handleKey = function(aChar, aNode) {
+  var msqrt = MathEditor.prototype.createNode("msqrt");
+  var node = aNode;
+  if (aNode.getAttribute("class") == ("lhs selected")) {
+    node = MathEditor.prototype.appendNewNode("mi", emptyBox, aNode);
+  }
+  node.parentNode.insertBefore(msqrt, node);
+  msqrt.appendChild(node);
+  return node;
+}
 SqrtEditor.toJSString = function(aNode) {
   return "Math.sqrt(" + this._getChildString(aNode) + ")";
 }
 OperatorEditor.register(SqrtEditor);
 
-var FencedEditor = new EditorNode("mfenced", /\(/);
+var FencedEditor = new EditorNode("mfenced", /[\(\)]/);
+FencedEditor.handleKey = function(aChar, aNode) {
+  if (aChar == "(") {
+    newNode = MathEditor.prototype.appendNewNode("mfenced", "", aNode);
+    newNode.setAttribute("open", aChar);
+    newNode.setAttribute("close", ")");
+    newNode.setAttribute("separators", ",");
+    newNode.setAttribute("class", "function");
+    return newNode;
+  }
+
+  var fence = MathEditor.prototype.isFenced(aNode);
+  var mrow = MathEditor.prototype.createNode('mi');
+  fence.parentNode.insertBefore(mrow, fence.nextSibling);
+  return mrow;
+}
 FencedEditor.toJSString = function(aNode) {
   return "(" + this._getChildString(aNode) + ")";
 }
