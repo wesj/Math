@@ -1,85 +1,83 @@
-"use strict"
-var Editor = {
-  init: function() {
-    window.addEventListener("click", this, false);
-    window.addEventListener("keypress", this, false);
-  },
-  get details() {
-    delete this.details;
-    return this.details = document.getElementById("details");
-  },
-  __win: null,
-  set _currentWindow(aWindow) {
-    if (this.__win)
-      this.__win.setActive(false);
+define(function (require, exports, module) {
 
-    this.__win = aWindow;
-    this.__win.setActive(true);
-    this.__win.getDetails(this.details);
-  },
+var Plot = require("Plot");
+"use strict"
+
+var Editor = {
+    init: function() {
+        window.addEventListener("click", this, false);
+        window.addEventListener("keypress", this, false);
+        window.addEventListener("keydown", this, false);
+    },
+
+    get details() {
+        delete this.details;
+        return this.details = document.getElementById("details");
+    },
+    __win: null,
+    set _currentWindow(aWindow) {
+        if (this.__win)
+            this.__win.setActive(false);
+
+        this.__win = aWindow;
+        this.__win.setActive(true);
+        this.__win.getDetails(this.details);
+    },
+
   get _currentWindow() {
     return this.__win;
   },
-  handleEvent: function(aEvent) {
-    switch (aEvent.type) {
-      case "keypress" :
-        if (aEvent.charCode == 116 && aEvent.ctrlKey) {
-          aEvent.preventDefault();
-          aEvent.stopPropagation(); 
-          runTests(document.getElementById("tests"));
-          return;
+
+    handleEvent: function(aEvent) {
+        switch (aEvent.type) {
+            case "keypress" :
+                if (this._currentWindow) {
+                    this._currentWindow.editor.handleEvent(aEvent);
+                    this._currentWindow.getDetails(this.details);
+                }
+                break;
+
+            case "click" :
+                var t = aEvent.target;
+                while(t && t.classList && !t.classList.contains("window")) {
+                    t = t.parentNode;
+                }
+
+                if (t && t.classList && t.classList.contains("window")) {
+                    this._currentWindow = t;
+                    this._currentWindow.setCursor(aEvent.target);
+                    // console.log(aEvent.target.nodeName);
+                }
+                break;
+            case "keydown":
+                if (this._currentWindow.editor.handleEvent(aEvent)) {
+                    aEvent.preventDefault();
+                }
+
         }
-        if (this._currentWindow) {
-          this._currentWindow.editor.handleEvent(aEvent);
-          this._currentWindow.getDetails(this.details);
-        }
-        break;
-      case "click" :
-        var t = aEvent.target;
-        while(t && t.classList && !t.classList.contains("window")) {
-          t = t.parentNode;
-        }
-        if (t && t.classList && t.classList.contains("window")) {
-          this._currentWindow = t;
-          this._currentWindow.setCursor(aEvent.target);
-          console.log(aEvent.target.nodeName);
+    },
+
+    addPlot: function (aX, aY) {
+        var out = document.getElementById("details");
+        var plot = Plot.create(out);
+        return plot;
+    },
+
+    addEquation: function (aPrevSibling, aX, aY) {
+        this._currentWindow = (new Window("equation")).root;
+
+        if (aPrevSibling) {
+            if (aPrevSibling.nextSibling) {
+                aPrevSibling.parentNode.insertBefore(this._currentWindow, aPrevSibling.nextSibling);
+            } else {
+                aPrevSibling.parentNode.appendChild(this._currentWindow);
+            }
         } else {
-          this.addEquation(null, aEvent.clientX, aEvent.clientY);
+            document.getElementById("output").appendChild(this._currentWindow);
         }
-        break;
-    }
-  },
 
-  addPlot: function (aPrevSibling, aX, aY) {
-    this._currentWindow = (new Window("plot", 350, 250)).root;
-    //if (aX) this._currentWindow.style.left = aX;
-    //if (aY) this._currentWindow.style.top  = aY;
-    if (aPrevSibling) {
-      if (aPrevSibling.nextSibling)
-        aPrevSibling.parentNode.insertBefore(this._currentWindow, aPrevSibling.nextSibling);
-      else
-        aPrevSibling.parentNode.appendChild(this._currentWindow);
-    } else {
-      document.getElementById("output").appendChild(this._currentWindow);
-    }
-    this._currentWindow.editor = new Plot(this._currentWindow.content);
-    this._currentWindow.editor.setCursor(null, 0);
-  },
-
-  addEquation: function (aPrevSibling, aX, aY) {
-    this._currentWindow = (new Window("equation")).root;
-    //if (aX) this._currentWindow.style.left = aX;
-    //if (aY) this._currentWindow.style.top  = aY;
-    if (aPrevSibling) {
-      if (aPrevSibling.nextSibling)
-        aPrevSibling.parentNode.insertBefore(this._currentWindow, aPrevSibling.nextSibling);
-      else
-        aPrevSibling.parentNode.appendChild(this._currentWindow);
-    } else {
-      document.getElementById("output").appendChild(this._currentWindow);
-    }
-    this._currentWindow.editor = new MathEditor(this._currentWindow.content);
-  },
+        this._currentWindow.editor = new MathEditor(this._currentWindow.content);
+    },
 
   functionRegEx: /^([a-zA-Z])(\([a-zA-Z,]*\))*$/,
 
@@ -102,13 +100,14 @@ var Editor = {
     }
     return null;
   },
-  reportError: function(aError, aNode) {
-    var t = aNode;
-    while(t && !t.classList.contains("window")) {
-      t = t.parentNode;
+
+    reportError: function(aError, aNode) {
+        var t = aNode;
+        while(t && !t.classList.contains("window")) {
+            t = t.parentNode;
+        }
+        t.errors.textContent = aError;
     }
-    t.errors.textContent = aError;
-  }
 }
 
 function Window(type, width, height) {
@@ -175,7 +174,11 @@ Window.prototype = {
     this.bcr = this.root.getBoundingClientRect();
   },
   remove: function() {
-    this.root.parentNode.removeChild(this.root);
+    var parent = this.root.parentNode;
+    parent.removeChild(this.root);
+    if (parent.childNodes.length == 0) {
+      Editor.addEquation(null, 0, 0);
+    }
   },
   createButton: function(aOpts, aCallback) {
     var button = document.createElement("span");
@@ -199,12 +202,13 @@ Window.prototype = {
     if (this.root.editor) {
       var edit = this.root.editor;
       // xxx - move this into editor?
-      var isFunction = edit.looksLikeFunction();
+      var isFunction = false;//edit.looksLikeDefinition();
       var title = "";
       var fun = "";
-      var vars = edit.getVars();
+      // var vars = edit.getVars();
       if (isFunction) {
         fun = edit.toJSString();
+        /*
         title = edit.getJSFor(this.root.editor.lhs);
         ret +=   "<h1>" + title + "</h1>";
         ret +=   "<h3>Function</h3>";
@@ -213,14 +217,19 @@ Window.prototype = {
         ret +=   "<div class='plotdiv' style='width: 200px; height: 200px;'></div>";
         ret +=   "<h3>Variables</h3>";
         ret +=   "<div>" + vars + "</div>"
-      } else if (edit.looksLikeVar()) {
-        title = edit.getJSFor(this.root.editor.lhs);
+        */
+      } else if (edit.looksLikeDefinition()) {
+        // console.log("Get details");
+        title = edit.getJSFor(this.root.editor.rootNode);
+        // console.log("Get details", title);
+        /*
         ret +=   "<h1>" + title + "</h1>";
         ret +=   "<h3>Variable</h3>";
         ret +=   "<code>" + edit.toJSString() + "</code>";
       } else {
         ret +=   "<h3>Code</h3>";
         ret +=   "<code>" + edit.toJSString() + "</code>";
+        */
       }
     } else {
       ret +=   "<code>No function available</code>";
@@ -231,7 +240,6 @@ Window.prototype = {
       var plotdiv = aNode.querySelector(".plotdiv");
       if (plotdiv) {
         var plot = new Plot(plotdiv);
-        console.log("Adding function " + title + " -> " + fun + " " + title + ";");
         plot.addFunction({label: title, fun: fun + " " + title + ";", lineColor: "red"});
       } else {
         console.log("no plotdiv?");
@@ -239,3 +247,6 @@ Window.prototype = {
     }
   }
 }
+
+exports.Editor = Editor;
+})

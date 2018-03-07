@@ -1,3 +1,5 @@
+(function() {
+
 function Dragger(aElt, aEvent) {
   this.node = aElt;
 
@@ -31,3 +33,5 @@ Dragger.prototype = {
     this.node.removeEventListener("mouseup", this);
   }
 }
+
+})()

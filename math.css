@@ -1,8 +1,31 @@
-.selected {
-  border-bottom: 1px solid red;
-  border-right: 1px solid red;
+@namespace math url("http://www.w3.org/1998/Math/MathML");
+@namespace svg url("http://www.w3.org/2000/svg");
+
+@keyframes example {
+    from {
+      border-color: black;
+    }
+    to {
+      border-color: transparent;
+    }
 }
-.pass { color: green; }
+
+.selected {
+}
+
+.cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-bottom: 1px solid rgba(0,0,0,0.5);
+  border-right: 1px solid black;
+  animation-name: example;
+  animation-duration: 0.5s;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+}
+
+.pass { color: green; display: none; }
 .fail { color: red; }
 .mathdiv {
   padding: 5px;
@@ -15,12 +38,15 @@
 .lhs { color: green; }
 .rhs { color: blue; }
 .equality { color: orange; }
+
 .toolbar {
   height: 3em;
   width: 100%;
-  border-bottom: 2px solid black;
-  background-image: -moz-linear-gradient(darkgray, gray);
+  border-bottom: 1px solid black;
+  background: #00796b;
+  color: rgba(255,255,255,0.87);
 }
+
 .toolbarbutton {
   display: inline-block;
   width: 3em;
@@ -35,7 +61,7 @@
 }
 
 ol {
-  width: 50%;
+  width: 100%;
   height: 92%;
   list-style-type: none;
   padding: 0px;
@@ -43,49 +69,13 @@ ol {
 }
 
 .window {
-  border-bottom: 1px dashed lightgray;
-  /*
-  position: absolute;
-  min-width: 150px;
-  border-radius: 0px 8px 8px 0px;
-  -moz-transition-property: background-color, -moz-box-shadow;
-  -moz-transition-duration: 250ms;
-  */
+  border-bottom: 1px dashed rgb(250,250,250);
   min-height: 3em;
   overflow: visible;
 }
 
-.window.active {
-  border-bottom: 1px solid lightgray;
-  /*
-  border: 1px solid black;
-  background-color: white;
-  resize: both;
-  */
-  -moz-transition: box-shadow 200ms;
-  box-shadow: none;
-}
-/*
-.window:hover {
-  -moz-box-shadow: 0px 0px 2px black;
-}
-
-.window:not(.active):hover {
-  background-color: rgba(255,255,255, 0.5);
-}
-*/
 .window .titlebar {
   float: right;
-  /*
-  border-radius: 0px 8px 8px 0px;
-  visibility: hidden;
-  min-height: 2em;
-  height: 100%;
-  text-align: right;
-  background-color: lightgray;
-  border-left: 1px solid black;
-  cursor: move;
-  */
 }
 
 .window.active > .titlebar {
@@ -117,15 +107,11 @@ ol {
   opacity: 0.25;
   width: 32px;
   height: 3em;
-  display: inline-block;
+  display: none;
   background-position: center center;
   border-left: 1px solid gray;
   background-repeat: no-repeat;
   cursor: pointer;
-/*
-  background-position: top left;
-  -moz-transform: translate(8px, -8px);
-*/
   -moz-transition: opacity 200ms;
 }
 
@@ -137,11 +123,16 @@ ol {
   position: absolute;
   right: 20px;
   bottom: 20px;
+  background-color: white;
+  padding: 0.5em 2em;
+  overflow-y: auto;
+  max-height: calc(100% - 1em - 60px);
+  white-space: pre;
 }
 
 #tests li { opacity: 1; -moz-transition: opacity 1s; }
-#tests.hidden li { opacity: 0; }
-#tests li { display: none; }
+/*#tests.hidden li { opacity: 0; }
+#tests li { display: none; }*/
 #tests li.fail,
 #tests li:last-child { display: block; }
 
@@ -156,9 +147,16 @@ ol {
 #details {
   float: right;
   padding: 10px;
-  width: -moz-calc(50% - 20px);
-  height: 92%;
-  box-shadow: inset 3px 0px 5px -3px black;
+  width: calc(50% - 20px);
+  height: 90%;
+  background-color: rgb(250,250,250);
+  position: relative;
+}
+
+#details svg|svg {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 h3 {
@@ -166,4 +164,8 @@ h3 {
   font-size: large;
   font-weight: bold;
   border-bottom: 2px solid black;
+}
+
+math|*:hover {
+  /* outline: 1px solid gray; */
 }
