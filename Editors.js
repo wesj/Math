@@ -432,6 +432,7 @@ MatrixEditor.handleKey = function(aChar, aNode) {
         }
     }
 }
+exports.MatrixEditor = MatrixEditor;
 OperatorEditor.register(MatrixEditor);
 
 exports.EditorNode = EditorNode;
