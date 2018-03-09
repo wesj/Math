@@ -283,7 +283,7 @@ EqualsEditor.handleKey = function(aChar, aNode) {
     }
 
     if (!aNode.textContent || aNode.textContent == emptyBox) {
-        aNode.parentNode.removeChild(aNode);
+        // aNode.parentNode.removeChild(aNode);
     }
 
     var newNode = DOMHelpers.appendNewNode(this.nodeTypes[0], aChar, root);
