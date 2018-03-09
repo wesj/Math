@@ -34,7 +34,7 @@ var minusPlus = String.fromCharCode(0x2213);
 
             Editor.init();
             var bcr = document.getElementById("output").getBoundingClientRect();
-            Editor.addEquation(null, 5, bcr.top + 5);
+            Editor.addEquation(null);
 
             var ast = new operators.Operator("definition", [
                 new operators.FunctionNode("y", [

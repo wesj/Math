@@ -40,10 +40,12 @@ MathEditor.prototype = {
             aRoot.appendChild(this.rootNode);
         }
 
-        this.lhs = DOMHelpers.createNode("mrow");
-        this.lhs.classList.add("lhs");
+        this.lhs = DOMHelpers.createNode("mrow", { class: "lhs" });
         this.rootNode.appendChild(this.lhs);
-        SelectionHandler.setCursor(this.lhs, 0);
+
+        var r = DOMHelpers.createNode("mi", { text: emptyBox });
+        this.lhs.appendChild(r);
+        SelectionHandler.setCursor(r, 0);
     },
 
     handleEvent: function(aEvent) {
