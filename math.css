@@ -11,9 +11,16 @@
 }
 
 .selected {
+  border-bottom: 1px solid rgba(0,0,0,0.5);
+  border-right: 1px solid black;
+  animation-name: example;
+  animation-duration: 0.5s;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
 }
 
 .cursor {
+  display: none;
   position: absolute;
   top: 0;
   left: 0;
