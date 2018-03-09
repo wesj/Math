@@ -399,8 +399,14 @@ MatrixEditor.addRow = function(table, size) {
 }
 
 MatrixEditor.addMatrix = function(aChar, aNode) {
-    var mo = DOMHelpers.appendNewNode("mo", aChar, aNode);
-    var mtable = DOMHelpers.appendNewNode("mtable", "", mo);
+    // <mfenced open="[" close="]">
+    var fence = DOMHelpers.appendNewNode("mfenced", "", aNode);
+    fence.setAttribute("open", "[");
+    fence.setAttribute("close", "]");
+
+    // var mo = DOMHelpers.appendNewNode("mo", aChar, aNode);
+    var mtable = DOMHelpers.createNode("mtable");
+    fence.appendChild(mtable); // appendNewNode("mtable", "", fence);
     var size = 2;
     for(var i = 0; i < size; i++) {
         var row = this.addRow(mtable, size);
@@ -408,7 +414,7 @@ MatrixEditor.addMatrix = function(aChar, aNode) {
             newNode = row.firstElementChild.firstElementChild;
         }
     }
-    mo = DOMHelpers.appendNewNode("mo", "]", mtable);
+    // mo = DOMHelpers.appendNewNode("mo", "]", mtable);
     return newNode;
 }
 
