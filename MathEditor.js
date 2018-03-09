@@ -229,7 +229,7 @@ function KeyPressTest(aKeys, MathMLDOM) {
     try {
         var editor = new MathEditor();
         for(var i = 0; i < aKeys.length; i++) {
-            tests.sendKey(aKeys.charCodeAt(i), null, editor);
+            tests.sendKey(aKeys.charCodeAt(i), aKeys.charCodeAt(i), editor);
         }
 
         var root = editor.rootNode;
@@ -408,28 +408,21 @@ tests.tests.push(new KeyPressTest("\\4=",
   ]),
 ]));
 
-tests.tests.push(new KeyPressTest("[1\t2\t3\t4]",
+tests.tests.push(new KeyPressTest("[1	2	3	4]",
   [DOMHelpers.createNode("mrow", { class: "lhs"}, [
-      DOMHelpers.createNode("mo", { text: "[" }),
-      DOMHelpers.createNode("mtable", {}, [
-          DOMHelpers.createNode("mtr", {}, [
-              DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mi", {text: 1}) ]),
-              DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mi", {text: 2}) ]),
-          ]),
-          DOMHelpers.createNode("mtr", {}, [
-              DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mi", {text: 3}) ]),
-              DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mi", {text: 4}) ]),
-          ]),
-      ]),
-      DOMHelpers.createNode("mo", { text: "]", class: "selected" }),
-  ]),
-  DOMHelpers.createNode("mo", { class: "equality", text:"="}),
-  DOMHelpers.createNode("mrow", { class: "rhs generated" }, [
-    DOMHelpers.createNode("mfenced", { text: "", open: "[", close: "]", separators: ","}, [
-      DOMHelpers.createNode("mn", { text: "-2"}),
-      DOMHelpers.createNode("mn", { text: "2"}),
-    ]),
-  ]),
+      DOMHelpers.createNode("mfenced", { open: "[", close: "]", separators: "," }, [
+        DOMHelpers.createNode("mtable", {}, [
+            DOMHelpers.createNode("mtr", {}, [
+                DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mn", {text: 1}) ]),
+                DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mn", {text: 2}) ]),
+            ]),
+            DOMHelpers.createNode("mtr", {}, [
+                DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mn", {text: 3}) ]),
+                DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mn", {text: 4}) ]),
+            ]),
+        ]),
+    ])
+  ])
 ]));
 
 /*
