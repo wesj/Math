@@ -185,14 +185,14 @@ var AstEvaluator = {
         });
     },
 
-    matrix: function(ast, context) {
+    matrix: function(ast, context, original) {
         var vals = [];
 
         var matrix = ast.arguments ? ast.arguments[0] : ast;
         for (var i = 0; i < matrix.rows.length; i++) {
             var row = matrix.rows[i];
             for (var j = 0; j < row.values.length; j++) {
-                var val = this.evaluate(row.values[j]);
+                var val = this.evaluate(row.values[j], context, original);
                 vals.push(val);
             }
         }
