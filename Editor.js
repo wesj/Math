@@ -39,11 +39,11 @@ var Editor = {
 
             case "click" :
                 var t = aEvent.target;
-                while(t && t.classList && !t.classList.contains("window")) {
+                while(t && t.classList && t.nodeName != "math") {
                     t = t.parentNode;
                 }
 
-                if (t && t.classList && t.classList.contains("window")) {
+                if (t &&  t.nodeName === "math") {
                     this._currentWindow = t;
                     this._currentWindow.setCursor(aEvent.target);
                     // console.log(aEvent.target.nodeName);
