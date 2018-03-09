@@ -35,17 +35,16 @@ var appendChildren = function(children, parent) {
 }
 
 var appendNewNode = function(aName, aChar, aNode) {
-    var newNode = exports.createNode(aName);
-    newNode.textContent = aChar;
+    var newNode = createNode(aName, {text: aChar});
 
     if (aNode.nodeName == "mrow" ||
-            aNode.nodeName == "math" ||
-            aNode.nodeName == "mfenced" ||
-            aNode.nodeName == "mtr" ||
-            aNode.nodeName == "mtd") {
+        aNode.nodeName == "math" ||
+        // aNode.nodeName == "mfenced" ||
+        aNode.nodeName == "mtr" ||
+        aNode.nodeName == "mtd") {
         aNode.appendChild(newNode);
     } else if (aNode.parentNode) {
-        if (aNode.nodeName == "mi" && aNode.textContent == "") {
+        if (aNode.nodeName == "mi" && (aNode.textContent === "" || aNode.textContent === emptyBox)) {
             aNode.parentNode.replaceChild(newNode, aNode);
         } else if (aNode.nextSibling) {
             aNode.parentNode.insertBefore(newNode, aNode.nextSibling);
