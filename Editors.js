@@ -268,29 +268,9 @@ TabEditor.canHandle = function(aChar, aNode, aEvent) {
     }
     return null;
 }
+
 TabEditor.handleKey = function(aChar, aNode, aEvent) {
-    var node = aNode;
-    var skipChildren = false;
-    while(node && !MathEditor.prototype.isEmpty(node)) {
-        if (node.nodeName === "math") {
-            break;
-        }
-
-        if (!skipChildren && node.childNodes.length > 0) {
-            skipChildren = false;
-            node = node.firstChild;
-        } else if (node.nextSibling) {
-            skipChildren = false;
-            node = node.nextSibling;
-        } else if (node.parentNode) {
-            skipChildren = true;
-            node = node.parentNode;
-        }
-    }
-
-    if (node && MathEditor.prototype.isEmpty(node)) {
-        SelectionHandler.setCursor(node, 0);
-    }
+    SelectionHandler.selectNext(aNode);
 }
 
 MathNodeEditor.register(TabEditor);
