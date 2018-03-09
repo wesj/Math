@@ -96,42 +96,73 @@ var SelectionHandler = {
                 newNode = newNode.lastChild;
             }
         } else if (node.parentNode) {
-            newNode = node.parentNode;
+            var s = this.selectPrev(node.parentNode);
+            return s;
         }
 
         if (!newNode || newNode == this.rootNode) {
             return null;
         }
 
-        this.setCursor(newNode);
+        if (newNode) {
+            if (!this.isSelectable(newNode)) {
+                return this.selectPrev(newNode);
+            } else {
+                this.setCursor(newNode);
+            }
+        }
         return newNode;
     },
 
-    selectNext: function(node) {
-        if (node.childNodes.length > 0 && node.firstChild.nodeName != "#text") {
-            this.setCursor(node.firstChild);
-        } else if (node.nextSibling) {
-            this.setCursor(node.nextSibling);
-        } else if (node.parentNode.lastChild == node) {
-            var newNode = node;
-            while (newNode && !newNode.nextSibling && newNode != this.rootNode) {
-                newNode = newNode.parentNode;
-            }
+    isSelectable: function(node) {
+        return node.nodeName !== "math" &&
+               node.nodeName !== "mrow" &&
+               node.nodeName !== "mtable" &&
+               node.nodeName !== "mtr" &&
+               node.nodeName !== "mtd" &&
+               !(node.nodeName == "mo" && node.textContent == "[");
+    },
 
-            var eq = this.eq;
-            if (newNode != this.rootNode && newNode.nextSibling !== eq) {
-                this.setCursor(newNode.nextSibling);
+    selectNext: function(aNode, moveUp) {
+        var node = aNode;
+        moveUp = moveUp === undefined ? true : moveUp;
+
+        var res = null;
+        if (node !== this.rootNode) {
+            if (!moveUp && node.children.length > 0) {
+                return this.selectNext(node.firstElementChild, false);
+            } else if (node.nextSibling) {
+                return this.selectNext(node.nextSibling, false);
+            } else if (moveUp && node.parentNode) {
+                return this.selectNext(node.parentNode, true);
+            }
+            res = aNode;
+        } else {
+            res = node.lastElementChild;
+            this.setCursor(res);
+            return res;
+        }
+
+        if (res) {
+            if (!this.isSelectable(res)) {
+                return this.selectNext(res, moveUp);
+            } else {
+                this.setCursor(res);
             }
         }
+
+        return res;
     },
 }
 
 var SpaceEditor = new Editors.EditorNode(null, / /);
 SpaceEditor.handleKey = function(aChar, aNode) {
-    var text = aNode.textContent;
+    //var text = aNode.textContent;
     var node = aNode.parentNode;
 
-    while (node.nodeName !== "math" && text === node.textContent) {
+    while (node &&
+           node.nodeName !== "math" &&
+           !SelectionHandler.isSelectable(node)) { //&& text === node.textContent) {
         node = node.parentNode;
     }
 
@@ -151,7 +182,10 @@ SpaceEditor.handleKey = function(aChar, aNode) {
     }
     */
 
-    SelectionHandler.setCursor(node, 0);
+    if (node) {
+        console.log(node);
+        SelectionHandler.setCursor(node, 0);
+    }
 }
 Editors.register(SpaceEditor);
 
