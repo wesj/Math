@@ -426,10 +426,7 @@ MatrixEditor.handleKey = function(aChar, aNode) {
           aNode = aNode.parentNode;
         }
 
-        if (aNode) {
-          aNode = aNode.nextElementSibling;
-          return aNode;
-        }
+        return aNode.parentNode;
     }
 }
 exports.MatrixEditor = MatrixEditor;
