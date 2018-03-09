@@ -407,6 +407,31 @@ tests.tests.push(new KeyPressTest("\\4=",
     ]),
   ]),
 ]));
+
+tests.tests.push(new KeyPressTest("[1\t2\t3\t4]",
+  [DOMHelpers.createNode("mrow", { class: "lhs"}, [
+      DOMHelpers.createNode("mo", { text: "[" }),
+      DOMHelpers.createNode("mtable", {}, [
+          DOMHelpers.createNode("mtr", {}, [
+              DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mi", {text: 1}) ]),
+              DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mi", {text: 2}) ]),
+          ]),
+          DOMHelpers.createNode("mtr", {}, [
+              DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mi", {text: 3}) ]),
+              DOMHelpers.createNode("mtd", {}, [ DOMHelpers.createNode("mi", {text: 4}) ]),
+          ]),
+      ]),
+      DOMHelpers.createNode("mo", { text: "]", class: "selected" }),
+  ]),
+  DOMHelpers.createNode("mo", { class: "equality", text:"="}),
+  DOMHelpers.createNode("mrow", { class: "rhs generated" }, [
+    DOMHelpers.createNode("mfenced", { text: "", open: "[", close: "]", separators: ","}, [
+      DOMHelpers.createNode("mn", { text: "-2"}),
+      DOMHelpers.createNode("mn", { text: "2"}),
+    ]),
+  ]),
+]));
+
 /*
 tests.tests.push(new KeyPressTest("1+3+-4=",
   [DOMHelpers.createNode("mrow", { class: "lhs"}, [
