@@ -187,8 +187,12 @@ MathEditor.prototype = {
     },
 
     isEmpty: function(aNode) {
-        if (aNode.nodeName == "mrow" || aNode.nodeName == "mfenced" || aNode.nodeName === "mtd")
+        if (aNode.childNodes.count > 0) {
+          return true;
+        }
+        if (aNode.nodeName == "mrow") {
             return false;
+        }
         return !aNode.textContent || aNode.textContent == emptyBox;
     },
 
