@@ -1,8 +1,11 @@
 define(function (require, exports, module) {
 
+var SelectionHandler = require("SelectionHandler");
 var Plot = require("Plot");
+
 "use strict"
 
+var editorCache = new WeakMap();
 var Editor = {
     init: function() {
         window.addEventListener("click", this, false);
@@ -16,44 +19,51 @@ var Editor = {
     },
     __win: null,
     set _currentWindow(aWindow) {
-        if (this.__win)
+        if (this.__win) {
             this.__win.setActive(false);
+        }
 
         this.__win = aWindow;
-        this.__win.setActive(true);
-        this.__win.getDetails(this.details);
+        // this.__win.setActive(true);
+        // this.__win.getDetails(this.details);
     },
 
   get _currentWindow() {
     return this.__win;
   },
 
+  get currentEditor() {
+      return editorCache.get(this._currentWindow);
+  },
+
     handleEvent: function(aEvent) {
         switch (aEvent.type) {
             case "keypress" :
-                if (this._currentWindow) {
-                    this._currentWindow.editor.handleEvent(aEvent);
-                    this._currentWindow.getDetails(this.details);
+                var editor = this.currentEditor;
+                if (editor) {
+                    editor.handleEvent(aEvent);
+                    // this._currentWindow.getDetails(this.details);
                 }
                 break;
 
             case "click" :
                 var t = aEvent.target;
-                while(t && t.classList && t.nodeName != "math") {
+                while(t && t.nodeName != "math") {
                     t = t.parentNode;
                 }
 
                 if (t &&  t.nodeName === "math") {
-                    this._currentWindow = t;
-                    this._currentWindow.setCursor(aEvent.target);
+                    this._currentWindow = t.parentNode.parentNode;
+                    SelectionHandler.setCursor(aEvent.target);
+                    // this._currentWindow.setCursor(aEvent.target);
                     // console.log(aEvent.target.nodeName);
                 }
                 break;
             case "keydown":
-                if (this._currentWindow.editor.handleEvent(aEvent)) {
+                var editor = this.currentEditor;
+                if (editor && editor.handleEvent(aEvent)) {
                     aEvent.preventDefault();
                 }
-
         }
     },
 
@@ -76,7 +86,8 @@ var Editor = {
             document.getElementById("output").appendChild(this._currentWindow);
         }
 
-        this._currentWindow.editor = new MathEditor(this._currentWindow.content);
+        var editor = new MathEditor(this._currentWindow.content);
+        editorCache.set(this._currentWindow, editor);
     },
 
   functionRegEx: /^([a-zA-Z])(\([a-zA-Z,]*\))*$/,
