@@ -31,8 +31,10 @@ var AstToMathML = {
             node.appendChild(row);
             for (var j = 0; j < matrix.cols; j++) {
                 var m = matrix.value(i, j);
-                if (!m.nodeName) {
+                if (m && !m.nodeName) {
                     m = this.convert(m);
+                } else {
+                    m = createNode("mi", {text: emptyBox});
                 }
 
                 var col = createNode("mtd", {}, [m]);
@@ -53,6 +55,8 @@ var AstToMathML = {
             return this.convertMatrix(ast);
         } else if (ast && ast.type && this[ast.type]) {
             return this[ast.type](ast);
+        } else if (ast === emptyBox) {
+            return this.convertNumber(NaN);
         } else {
             console.error("Unable to convert", ast);
         }
