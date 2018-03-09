@@ -4,6 +4,8 @@ var tests = require('tests');
 // var tests = false;
 var DOMHelpers = require('DOMHelpers');
 var Editors = require("Editors");
+var MatrixEditor = Editors.MatrixEditor;
+
 var Cursor = document.createElement("div");
 document.body.appendChild(Cursor);
 Cursor.classList.add("cursor");
@@ -25,7 +27,11 @@ var SelectionHandler = {
     },
 
     set selectedNode(val) {
+        if (this._selectedNode) {
+            this._selectedNode.classList.remove("selected");
+        }
         this._selectedNode = val;
+        this._selectedNode.classList.add("selected");
         this.rootNode = val;
 
         while (this.rootNode && this.rootNode.nodeName != "math") {
