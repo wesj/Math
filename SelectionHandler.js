@@ -30,9 +30,12 @@ var SelectionHandler = {
         if (this._selectedNode) {
             this._selectedNode.classList.remove("selected");
         }
+
         this._selectedNode = val;
-        this._selectedNode.classList.add("selected");
         this.rootNode = val;
+        if (this._selectedNode) {
+            this._selectedNode.classList.add("selected");
+        }
 
         while (this.rootNode && this.rootNode.nodeName != "math") {
             this.rootNode = this.rootNode.parentNode;

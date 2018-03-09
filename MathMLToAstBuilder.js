@@ -910,29 +910,25 @@ tests.tests.push(new KeyPressTest(DOMHelpers.createNode("math", {}, [
     AstToMathML.convert(new Matrix(2, [1,2,3,4])),
   ])
 ]), new Operator("+", [
-  new Operator("[", [
-    new MatrixNode(null, [
-      new RowNode(null, [
-        new NumberNode(1),
-        new NumberNode(2),
-      ]),
-      new RowNode(null, [
-        new NumberNode(3),
-        new NumberNode(4),
-      ])
+  new MatrixNode(null, [
+    new RowNode(null, [
+      new NumberNode(1),
+      new NumberNode(2),
     ]),
+    new RowNode(null, [
+      new NumberNode(3),
+      new NumberNode(4),
+    ])
   ]),
-  new Operator("[", [
-    new MatrixNode(null, [
-      new RowNode(null, [
-        new NumberNode(1),
-        new NumberNode(2),
-      ]),
-      new RowNode(null, [
-        new NumberNode(3),
-        new NumberNode(4),
-      ])
+  new MatrixNode(null, [
+    new RowNode(null, [
+      new NumberNode(1),
+      new NumberNode(2),
     ]),
+    new RowNode(null, [
+      new NumberNode(3),
+      new NumberNode(4),
+    ])
   ]),
 ])));
 

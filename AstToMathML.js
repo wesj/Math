@@ -24,8 +24,10 @@ var AstToMathML = {
     },
 
     convertMatrix: function(matrix) {
-        var open = createNode("mo", { text: "[" });
+        var open = createNode("mfenced", { open: "[", close: "]", separators: "," });
         var node = createNode("mtable", { });
+        open.appendChild(node);
+
         for (var i = 0; i < matrix.rows; i++) {
             var row = createNode("mtr", { })
             node.appendChild(row);
@@ -33,7 +35,7 @@ var AstToMathML = {
                 var m = matrix.value(i, j);
                 if (m && !m.nodeName) {
                     m = this.convert(m);
-                } else {
+                } else if (!m.nodeName) {
                     m = createNode("mi", {text: emptyBox});
                 }
 
@@ -42,8 +44,7 @@ var AstToMathML = {
             }
         }
 
-        var close = createNode("mo", { text: "]" });
-        return [open, node, close].flatten(1000);
+        return [open];
     },
 
     convert: function(ast) {
@@ -364,18 +365,18 @@ tests.tests.push(new Test(
             new Operator.NumberNode(4)
         ])
     ]), [
-        createNode("mo", {text: "["}),
-        createNode("mtable", {}, [
-            createNode("mtr", {}, [
-                createNode("mtd", {}, [createNode("mn", {text: 1})]),
-                createNode("mtd", {}, [createNode("mn", {text: 2})]),
-            ]),
-            createNode("mtr", {}, [
-                createNode("mtd", {}, [createNode("mn", {text: 3})]),
-                createNode("mtd", {}, [createNode("mn", {text: 4})]),
+        createNode("mfenced", {open: "[", close: "]", separators: ","}, [
+            createNode("mtable", {}, [
+                createNode("mtr", {}, [
+                    createNode("mtd", {}, [createNode("mn", {text: 1})]),
+                    createNode("mtd", {}, [createNode("mn", {text: 2})]),
+                ]),
+                createNode("mtr", {}, [
+                    createNode("mtd", {}, [createNode("mn", {text: 3})]),
+                    createNode("mtd", {}, [createNode("mn", {text: 4})]),
+                ]),
             ]),
         ]),
-        createNode("mo", {text: "]"}),
     ]
 ));
 
