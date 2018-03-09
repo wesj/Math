@@ -124,28 +124,26 @@ var SelectionHandler = {
     },
 
     selectNext: function(aNode, moveUp) {
-        var node = aNode;
-        moveUp = moveUp === undefined ? true : moveUp;
+        var node = aNode; 
+        var innerMoveUp = moveUp === undefined ? true : moveUp;
 
         var res = null;
         if (node !== this.rootNode) {
-            if (!moveUp && node.children.length > 0) {
+            if (!innerMoveUp && node.children.length > 0) {
                 return this.selectNext(node.firstElementChild, false);
-            } else if (node.nextSibling) {
+            } else if ((moveUp === undefined || moveUp) && node.nextSibling) {
                 return this.selectNext(node.nextSibling, false);
-            } else if (moveUp && node.parentNode) {
+            } else if (innerMoveUp && node.parentNode) {
                 return this.selectNext(node.parentNode, true);
             }
             res = aNode;
         } else {
-            res = node.lastElementChild;
-            this.setCursor(res);
-            return res;
+            return null;
         }
 
         if (res) {
             if (!this.isSelectable(res)) {
-                return this.selectNext(res, moveUp);
+                return this.selectNext(res, innerMoveUp);
             } else {
                 this.setCursor(res);
             }
@@ -161,29 +159,12 @@ SpaceEditor.handleKey = function(aChar, aNode) {
     var node = aNode.parentNode;
 
     while (node &&
-           node.nodeName !== "math" &&
+           node.parentNode && node.parentNode.nodeName !== "math" &&
            !SelectionHandler.isSelectable(node)) { //&& text === node.textContent) {
         node = node.parentNode;
     }
 
-    /*
-    if (node.nodeName === "mtd" && node.childNodes.length == 1) {
-        return this.handleKey(aChar, node);
-    } else if (node.nodeName == "mtr") {
-        return this.handleKey(aChar, node);
-    } else if (node.nodeName == "mtable") {
-        var prev = node.previousSibling;
-        var next = node.nextSibling;
-        if (prev.nodeName == "mo" && prev.textContent == "[" &&
-            next.nodeName == "mo" && next.textContent == "]") {
-            return this.handleKey(aChar, node);
-        }
-        return this.handleKey(aChar, node);
-    }
-    */
-
     if (node) {
-        console.log(node);
         SelectionHandler.setCursor(node, 0);
     }
 }
@@ -349,21 +330,20 @@ tests.tests.push(new TestSelection("1+2", "SS", [
 tests.tests.push(new TestSelection("1+3", "LLLRR", [
     DOMHelpers.createNode("mo", {text: "+"}),
     DOMHelpers.createNode("mn", { text: "1" }),
-    DOMHelpers.createNode("mrow", { text: "1+3" }),
     DOMHelpers.createNode("mn", { text: "1" }),
     DOMHelpers.createNode("mo", { text: "+" }),
+    DOMHelpers.createNode("mn", { text: "3" }),
 ]));
 
 tests.tests.push(new TestSelection("1^x +2", "LLLLLRRRR", [
     DOMHelpers.createNode("mo", {text: "+"}),
     DOMHelpers.createNode("mi", { text: "x" }),
-    DOMHelpers.createNode("mrow", { text: "x" }),
     DOMHelpers.createNode("mn", { text: "1" }),
-    DOMHelpers.createNode("msup", { text: "1x" }),
     DOMHelpers.createNode("mn", { text: "1" }),
-    DOMHelpers.createNode("mrow", { text: "x" }),
+    DOMHelpers.createNode("mn", { text: "1" }),
     DOMHelpers.createNode("mi", { text: "x" }),
     DOMHelpers.createNode("mo", {text: "+"}),
+    DOMHelpers.createNode("mn", { text: "2" }),
     DOMHelpers.createNode("mn", { text: "2" }),
 ]));
 
