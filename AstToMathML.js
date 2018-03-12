@@ -140,7 +140,7 @@ var AstToMathML = {
     multiply: function(ast, context, original) {
         return [
             this.convert(ast.arguments[0]),
-            createNode("mo", {text: "*"}),
+            createNode("mo", {text: invisibleTimes}),
             this.convert(ast.arguments[1]),
         ].flatten(1000)
     },
