@@ -87,7 +87,35 @@ var SelectionHandler = {
         }
     },
 
-    selectPrev: function(node) {
+    selectPrev: function(aNode, moveUp) {
+        var node = aNode;
+        var innerMoveUp = moveUp === undefined ? false : moveUp;
+
+        var res = null;
+        if (node !== this.rootNode) {
+            if (!innerMoveUp && node.children.length > 0) {
+                res = node.lastElementChild;
+            } else if (node.previousElementSibling) {
+                res = node.previousElementSibling;
+            } else if (node.parentNode) {
+                return this.selectPrev(node.parentNode, true);
+            } else {
+                res = aNode;
+            }
+        } else {
+            return null;
+        }
+
+        if (res) {
+            if (!this.isSelectable(res)) {
+                return this.selectPrev(res);
+            } else {
+                this.setCursor(res);
+            }
+        }
+
+        return res;
+        /*
         if (node == this.rootNode || node == this.lhs) {
             return null;
         }
@@ -115,6 +143,7 @@ var SelectionHandler = {
             }
         }
         return newNode;
+        */
     },
 
     isSelectable: function(node) {
@@ -132,14 +161,19 @@ var SelectionHandler = {
 
         var res = null;
         if (node !== this.rootNode) {
+            // First we move to the deepest child we can find
             if (!innerMoveUp && node.children.length > 0) {
                 return this.selectNext(node.firstElementChild, false);
             } else if ((moveUp === undefined || moveUp) && node.nextSibling) {
+                // If there aren't any children, we move to the next sibling
                 return this.selectNext(node.nextSibling, false);
             } else if (innerMoveUp && node.parentNode) {
-                return this.selectNext(node.parentNode, true);
+                // If there aren't any siblings, we'll move up a level.
+                res = node.parentNode;
+                // return this.selectNext(node.parentNode, true);
+            } else {
+                res = aNode;
             }
-            res = aNode;
         } else {
             return null;
         }
@@ -189,40 +223,24 @@ function isInMatrix(aNode, aEvent) {
 
 var LeftEditor = new Editors.EditorNode(null, 37);
 LeftEditor.handleKey = function(aChar, aNode, aEvent) {
-    var matrix = isInMatrix(aNode, aEvent);
-    if (matrix) {
-        return MatrixEditor.collapseLeft(matrix);
-    }
     SelectionHandler.selectPrev(aNode);
 }
 Editors.register(LeftEditor);
 
 var UpEditor = new Editors.EditorNode(null, 38);
 UpEditor.handleKey = function(aChar, aNode, aEvent) {
-    var matrix = isInMatrix(aNode, aEvent);
-    if (matrix) {
-        return MatrixEditor.collapseUp(matrix);
-    }
     SelectionHandler.selectPrev(aNode);
 }
 Editors.register(UpEditor);
 
 var RightEditor = new Editors.EditorNode(null, 39);
 RightEditor.handleKey = function(aChar, aNode, aEvent) {
-    var matrix = isInMatrix(aNode, aEvent);
-    if (matrix) {
-        return MatrixEditor.expandRight(matrix);
-    }
     SelectionHandler.selectNext(aNode);
 }
 Editors.register(RightEditor);
 
 var DownEditor = new Editors.EditorNode(null, 40);
 DownEditor.handleKey = function(aChar, aNode, aEvent) {
-    var matrix = isInMatrix(aNode, aEvent);
-    if (matrix) {
-        return MatrixEditor.expandDown(matrix);
-    }
     SelectionHandler.selectNext(aNode);
 }
 Editors.register(DownEditor);
@@ -338,13 +356,25 @@ tests.tests.push(new TestSelection("1+3", "LLLRR", [
     DOMHelpers.createNode("mn", { text: "3" }),
 ]));
 
-tests.tests.push(new TestSelection("1^x +2", "LLLLLRRRR", [
+tests.tests.push(new TestSelection("1^x +2", "LLLLLRRRRR", [
     DOMHelpers.createNode("mo", {text: "+"}),
+    DOMHelpers.createNode("msup", { text: "1x" }),
     DOMHelpers.createNode("mi", { text: "x" }),
     DOMHelpers.createNode("mn", { text: "1" }),
     DOMHelpers.createNode("mn", { text: "1" }),
-    DOMHelpers.createNode("mn", { text: "1" }),
     DOMHelpers.createNode("mi", { text: "x" }),
+    DOMHelpers.createNode("msup", { text: "1x" }),
+    DOMHelpers.createNode("mo", {text: "+"}),
+    DOMHelpers.createNode("mn", { text: "2" }),
+    DOMHelpers.createNode("mn", { text: "2" }),
+]));
+
+tests.tests.push(new TestSelection("\\4 +2", "LLLLRRRR", [
+    DOMHelpers.createNode("mo", {text: "+"}),
+    DOMHelpers.createNode("msqrt", { text: "4" }),
+    DOMHelpers.createNode("mn", { text: "4" }),
+    DOMHelpers.createNode("mn", { text: "4" }),
+    DOMHelpers.createNode("msqrt", { text: "4" }),
     DOMHelpers.createNode("mo", {text: "+"}),
     DOMHelpers.createNode("mn", { text: "2" }),
     DOMHelpers.createNode("mn", { text: "2" }),
