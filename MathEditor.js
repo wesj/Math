@@ -73,8 +73,10 @@ MathEditor.prototype = {
         if (eq && isDefinition) {
             eq.classList.remove("equality");
             eq.classList.add("definition");
-            this.rhs = DOMHelpers.appendNewNode("mrow", "", eq);
-            this.rhs.classList.add("rhs");
+            if (!this.rhs) {
+                this.rhs = DOMHelpers.appendNewNode("mrow", {}, eq);
+                this.rhs.classList.add("rhs");
+            }
             SelectionHandler.setCursor(this.rhs);
         }
 
@@ -82,18 +84,19 @@ MathEditor.prototype = {
 
         if (eq && !isDefinition) {
             // TODO: Seems like we're removing a lot here...
-            while (eq.nextSibling) {
-                eq.parentNode.removeChild(eq.nextSibling);
+            while (this.rhs) {
+                this.rhs.parentNode.removeChild(this.rhs);
+                this.rhs = null;
             }
 
+            if (!this.rhs) {
+                this.rhs = DOMHelpers.appendNewNode("mrow", {}, eq);
+                this.rhs.classList.add("rhs");
+                this.rhs.classList.add("generated");
+            }
             var txt = this.evalCurrent();
-            this.rhs = DOMHelpers.appendNewNode("mrow", "", eq);
-            this.rhs.classList.add("rhs");
-            this.rhs.classList.add("generated");
-
             var convert = AstToMathML.convert(txt);
             DOMHelpers.appendChildren(convert, this.rhs);
-
             MathMLToAstBuilder.clearCache(this.rootNode);
         }
         return true;
@@ -163,26 +166,15 @@ MathEditor.prototype = {
 
         var context = this.getCurrentContext();
 
-        if (true) {
-            try {
-                var builder = MathMLToAstBuilder.create(this.rootNode);
-                var ast = builder.build();
-                return AstEvaluator.evaluate(ast, context);
-            } catch(ex) {
-                Editor.reportError(ex, this.rootNode);
-                console.error(ex);
-            }
-        } else {
-            var js = this.getJSFor(this.lhs, context);
-            var res = "";
-            try {
-                res = eval(js);
-                Editor.reportError("", this.rootNode);
-            } catch(ex) {
-                Editor.reportError(ex, this.rootNode);
-                console.error(ex);
-            }
-            return res;
+        try {
+            var builder = MathMLToAstBuilder.create(this.rootNode);
+            var ast = builder.build();
+            var ret = AstEvaluator.evaluate(ast, context);
+            Editor.reportError("", this.rootNode);
+            return ret;
+        } catch(ex) {
+            Editor.reportError(ex, this.rootNode);
+            console.error(ex);
         }
     },
 
@@ -197,8 +189,8 @@ MathEditor.prototype = {
     },
 
     multiplyCurrent: function(aChar, aNode, aNewNodeName) {
-        var newNode = DOMHelpers.appendNewNode("mo", invisibleTimes, aNode);
-        return DOMHelpers.appendNewNode(aNewNodeName, aChar, newNode);
+        var newNode = DOMHelpers.appendNewNode("mo", { text: invisibleTimes }, aNode);
+        return DOMHelpers.appendNewNode(aNewNodeName, { text: aChar }, newNode);
     },
 
     toJSString: function() {
@@ -396,7 +388,9 @@ tests.tests.push(new KeyPressTest("2_2=", [
 tests.tests.push(new KeyPressTest("\\4=",
   [DOMHelpers.createNode("mrow", { class: "lhs"}, [
       DOMHelpers.createNode("msqrt", {}, [
-          DOMHelpers.createNode("mn", { text: "4"}),
+          DOMHelpers.createNode("mrow", {}, [
+              DOMHelpers.createNode("mn", { text: "4"}),
+          ]),
       ]),
   ]),
   DOMHelpers.createNode("mo", { class: "equality", text:"="}),

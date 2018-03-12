@@ -90,34 +90,38 @@ var Editor = {
         editorCache.set(this._currentWindow, editor);
     },
 
-  functionRegEx: /^([a-zA-Z])(\([a-zA-Z,]*\))*$/,
+    functionRegEx: /^([a-zA-Z])(\([a-zA-Z,]*\))*$/,
 
-  getFunction: function(aLHS) {
-    var eqs = document.getElementsByClassName("equation");
-    var functionName = this.functionRegEx.exec(aLHS);
-    if (!functionName)
-      return null;
-    for(var i = 0; i < eqs.length; i++) {
-      var win = eqs[i];
-      while(win && !win.classList.contains("window")) {
-        win = win.parentNode;
-      }
-      var edit = win.editor;
-      var string = edit.getJSFor(edit.lhs);
-      var matchingName = this.functionRegEx.exec(string);
-      if (matchingName && functionName[1] == matchingName[1]) {
-        return eqs[i];
-      }
-    }
-    return null;
-  },
+    getFunction: function(aLHS) {
+        var eqs = document.getElementsByClassName("equation");
+        var functionName = this.functionRegEx.exec(aLHS);
+        if (!functionName) {
+            return null;
+        }
+
+        for(var i = 0; i < eqs.length; i++) {
+            var win = eqs[i];
+            while(win && !win.classList.contains("window")) {
+                win = win.parentNode;
+            }
+            var edit = win.editor;
+            var string = edit.getJSFor(edit.lhs);
+            var matchingName = this.functionRegEx.exec(string);
+            if (matchingName && functionName[1] == matchingName[1]) {
+                return eqs[i];
+            }
+        }
+        return null;
+    },
 
     reportError: function(aError, aNode) {
         var t = aNode;
         while(t && !t.classList.contains("window")) {
             t = t.parentNode;
         }
-        t.errors.textContent = aError;
+        if (t) {
+          t.errors.textContent = aError;
+        }
     }
 }
 

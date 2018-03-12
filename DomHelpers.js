@@ -34,8 +34,8 @@ var appendChildren = function(children, parent) {
     }
 }
 
-var appendNewNode = function(aName, aChar, aNode) {
-    var newNode = createNode(aName, {text: aChar});
+var appendNewNode = function(aName, attrs, aNode) {
+    var newNode = createNode(aName, attrs);
 
     if (aNode.nodeName == "mrow" ||
         aNode.nodeName == "math" ||
@@ -44,7 +44,7 @@ var appendNewNode = function(aName, aChar, aNode) {
         aNode.nodeName == "mtd") {
         aNode.appendChild(newNode);
     } else if (aNode.parentNode) {
-        if (aNode.nodeName == "mi" && (aNode.textContent === "" || aNode.textContent === emptyBox)) {
+        if (aNode.textContent === "" || aNode.textContent === emptyBox) {
             aNode.parentNode.replaceChild(newNode, aNode);
         } else if (aNode.nextSibling) {
             aNode.parentNode.insertBefore(newNode, aNode.nextSibling);
@@ -58,9 +58,12 @@ var appendNewNode = function(aName, aChar, aNode) {
     return newNode;
 }
 
-var appendToNode = function(aChar, aNode) {
-    if (aNode.textContent == emptyBox) aNode.textContent = aChar;
-    else aNode.textContent += aChar;
+var appendTextToNode = function(aChar, aNode) {
+    if (aNode.textContent == emptyBox) {
+        aNode.textContent = aChar;
+    } else {
+        aNode.textContent += aChar;
+    }
 
     return aNode;
 }
@@ -80,6 +83,6 @@ exports.createNode = createNode;
 exports.replaceNode = replaceNode;
 exports.appendChildren = appendChildren;
 exports.appendNewNode = appendNewNode;
-exports.appendToNode = appendToNode;
+exports.appendTextToNode = appendTextToNode;
 
 });

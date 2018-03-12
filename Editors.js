@@ -52,10 +52,10 @@ EditorNode.prototype = {
         }
 
         if (this.canAppend && this.nodeTypes.indexOf(aNode.nodeName) > -1) {
-            return DOMHelpers.appendToNode(aChar, aNode)
+            return DOMHelpers.appendTextToNode(aChar, aNode)
         }
 
-        return DOMHelpers.appendNewNode(this.nodeTypes[0], aChar, aNode);
+        return DOMHelpers.appendNewNode(this.nodeTypes[0], { text: aChar }, aNode);
     },
 
     handleKey: function(aChar, aNode, aEvent) {
@@ -248,14 +248,19 @@ OperatorEditor.register(SubEditor);
 var SqrtEditor = new EditorNode("msqrt", [/\\/]);
 SqrtEditor.handleKey = function(aChar, aNode, aEvent) {
     var msqrt = DOMHelpers.createNode("msqrt");
+    var row = DOMHelpers.createNode("mrow", "");
+    msqrt.appendChild(row);
+
     var node = aNode;
     if (aNode.getAttribute("class") == ("lhs selected")) {
-        node = DOMHelpers.appendNewNode("mi", emptyBox, aNode);
+        node = DOMHelpers.createNode("mi", { text: emptyBox });
     } else if (aNode.nodeName == "mo") {
-        node = DOMHelpers.appendNewNode("mi", emptyBox, aNode);
+        node = DOMHelpers.createNode("mi", { text: emptyBox });
+    } else {
+        node.parentNode.insertBefore(msqrt, node);
     }
-    node.parentNode.insertBefore(msqrt, node);
-    msqrt.appendChild(node);
+
+    row.appendChild(node);
     return node;
 }
 OperatorEditor.register(SqrtEditor);
@@ -286,7 +291,7 @@ EqualsEditor.handleKey = function(aChar, aNode) {
         // aNode.parentNode.removeChild(aNode);
     }
 
-    var newNode = DOMHelpers.appendNewNode(this.nodeTypes[0], aChar, root);
+    var newNode = DOMHelpers.appendNewNode(this.nodeTypes[0], { text: aChar }, root);
     newNode.classList.add("equality");
     return null;
 }
@@ -334,7 +339,7 @@ FencedEditor.handleKey = function(aChar, aNode) {
     }
 
     if (aChar == "(") {
-        newNode = DOMHelpers.appendNewNode("mfenced", "", aNode);
+        newNode = DOMHelpers.appendNewNode("mfenced", {}, aNode);
         newNode.setAttribute("open", aChar);
         newNode.setAttribute("close", ")");
         if (aNode.nodeName === "mi") {
@@ -345,7 +350,7 @@ FencedEditor.handleKey = function(aChar, aNode) {
         newNode.appendChild(n);
         return n;
     } else if (aChar === "|") {
-        newNode = DOMHelpers.appendNewNode("mfenced", "", aNode);
+        newNode = DOMHelpers.appendNewNode("mfenced", {}, aNode);
         newNode.setAttribute("open", "|");
         newNode.setAttribute("close", "|");
         newNode.setAttribute("class", "magnitude");
@@ -390,7 +395,7 @@ MatrixEditor.addCol = function(row) {
 }
 
 MatrixEditor.addRow = function(table, size) {
-    var row = DOMHelpers.createNode("mtr", {});
+    var row = DOMHelpers.createNode("mtr");
     table.appendChild(row)
     for (var j = 0; j < size; j++) {
         this.addCol(row);
@@ -400,13 +405,13 @@ MatrixEditor.addRow = function(table, size) {
 
 MatrixEditor.addMatrix = function(aChar, aNode) {
     // <mfenced open="[" close="]">
-    var fence = DOMHelpers.appendNewNode("mfenced", "", aNode);
+    var fence = DOMHelpers.appendNewNode("mfenced", {}, aNode);
     fence.setAttribute("open", "[");
     fence.setAttribute("close", "]");
 
-    // var mo = DOMHelpers.appendNewNode("mo", aChar, aNode);
+    // var mo = DOMHelpers.appendNewNode("mo", { text: aChar }, aNode);
     var mtable = DOMHelpers.createNode("mtable");
-    fence.appendChild(mtable); // appendNewNode("mtable", "", fence);
+    fence.appendChild(mtable); // appendNewNode("mtable", {}, fence);
     var size = 2;
     for(var i = 0; i < size; i++) {
         var row = this.addRow(mtable, size);
@@ -414,7 +419,7 @@ MatrixEditor.addMatrix = function(aChar, aNode) {
             newNode = row.firstElementChild.firstElementChild;
         }
     }
-    // mo = DOMHelpers.appendNewNode("mo", "]", mtable);
+    // mo = DOMHelpers.appendNewNode("mo", { text: "]" }, mtable);
     return newNode;
 }
 

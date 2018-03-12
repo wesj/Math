@@ -29,6 +29,7 @@ MathMLToAstBuilder.prototype = {
             return;
         }
 
+        // console.log("Clear", node);
         this.cache.delete(node);
 
         for (var i = 0; i < node.childNodes.length; i++) {
@@ -45,6 +46,7 @@ MathMLToAstBuilder.prototype = {
 
         if (this.cache.has(node)) {
             var res = this.cache.get(node);
+            // console.log("Cache hit", node, res);
             return res;
         }
 
