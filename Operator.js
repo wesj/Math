@@ -26,12 +26,10 @@ function MatrixNode(node, rows) {
         return "[" + this.rows.map(function(arg) { return arg.toString(); }).join(",") + "]";
     }
 
-    /*
     this.add = function(a, b) { return a.add(b); }
     this.subtract = function(a, b) { return a.subtract(b); }
     this.times = function(a, b) { return a.multiply(b); }
     this.divide = function(a, b) { return a.divide(b); }
-    */
 }
 
 function RowNode(node, cols) {

@@ -170,6 +170,7 @@ MathEditor.prototype = {
             var builder = MathMLToAstBuilder.create(this.rootNode);
             var ast = builder.build();
             var ret = AstEvaluator.evaluate(ast, context);
+            // console.log("Ret", ast, ret);
             Editor.reportError("", this.rootNode);
             return ret;
         } catch(ex) {

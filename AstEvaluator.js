@@ -8,8 +8,14 @@ var Context = require("Context.js");
 
 var AstEvaluator = {
     evaluate: function(ast, context, original) {
+        if (!ast) {
+            console.error("WTF", ast);
+            return;
+        }
+
         if (this[ast.type]) {
-            return this[ast.type](ast, context, original);
+            var ret = this[ast.type](ast, context, original);
+            return ret;
         }
 
         if (ast.length) {
@@ -88,8 +94,9 @@ var AstEvaluator = {
         var lhs = ast.arguments[0] ? this.evaluate(ast.arguments[0], context) : null;
         var rhs = ast.arguments[1] ? this.evaluate(ast.arguments[1], context) : null;
 
-        // console.log(operation, lhs, rhs);
+        // console.log("Eval", ast, lhs, rhs);
         if (lhs && lhs[operation]) {
+            // console.log("Eval with left", operation, lhs[operation]);
             return lhs[operation](rhs);
         } else if (rhs && rhs[operation + "Right"]) {
             return rhs[operation + "Right"](lhs);
@@ -107,7 +114,6 @@ var AstEvaluator = {
           if (typeof lhs === "number") {
             return evalFunc(lhs);
           }
-
           return new Operator(ast, [lhs]);
         }
     },
@@ -143,7 +149,10 @@ var AstEvaluator = {
     },
 
     equality:   function(ast, context, original) {
-        return this.evaluate(ast.arguments[0], context);
+        // return new Operator("equality", [
+        return AstEvaluator.evaluate(ast.arguments[0], context, original);
+        //    AstEvaluator.evaluate(ast.arguments[1], context, original),
+        //]);
     },
 
     comma:   function(ast, context, original) {
@@ -157,8 +166,10 @@ var AstEvaluator = {
         ]);
     },
 
-    divide:   function(ast, context, original) {
-        return this._runOperation(ast, context, "divide", function(lhs, rhs) { return lhs / rhs; });
+    divide: function(ast, context, original) {
+        return this._runOperation(ast, context, "divide", function(lhs, rhs) {
+            return lhs / rhs;
+        });
     },
 
     plusminus: function(ast, context, original) {

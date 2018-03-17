@@ -103,6 +103,7 @@ MathMLToAstBuilder.prototype = {
             var res = builder.build(val);
             if (res) {
                 val = res;
+                // console.log("Val", val);
             }
         }
         return val;
@@ -136,9 +137,6 @@ MathMLToAstBuilder.prototype = {
                 }
             }
 
-            // console.log(res.toString(),
-            //             lhs ? lhs.toString() : null,
-            //             rhs ? rhs.toString() : null);
             return ret;
         }
         return lhs;
@@ -174,7 +172,9 @@ MathMLToAstBuilder.prototype = {
     msqrt: function(lhs) {
         var ret = new Operator({ textContent: "sqrt" })
         var builder = new MathMLToAstBuilder(this.current.firstElementChild);
-        ret.arguments.push(builder.build());
+        var inside = builder.build();
+        ret.arguments.push(inside);
+        // console.log("In", ret);
         return ret;
     },
 
@@ -288,10 +288,12 @@ KeyPressTest.prototype = {
       if (ast[i] !== undefined) {
         if (Array.isArray(expected[i])) {
           for (var j = 0; j < expected[i].length; j++) {
+            // console.log("Recurse1", i, j, expected[i][j]);
             this.compareAst(ast[i][j], expected[i][j]);
           }
         } else if (typeof expected[i] === "object") {
-          this.compareAst(ast[i][j], expected[i][j]);
+          // console.log("Recurse2", expected[i]);
+          this.compareAst(ast[i], expected[i]);
         } else if (expected[i] instanceof Function) {
           // no op
         } else {
