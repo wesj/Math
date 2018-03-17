@@ -68,7 +68,7 @@ var AstEvaluator = {
                 var val = ast.parameters[i];
                 newContext.definitions[arg.value] = new Operator("definition");
                 newContext.definitions[arg.value].arguments = [
-                    new Variable({ textContent: [arg.value] }),
+                    new Variable({ textContent: arg.value }),
                     val
                 ];
             }
