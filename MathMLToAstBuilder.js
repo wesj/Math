@@ -126,7 +126,7 @@ MathMLToAstBuilder.prototype = {
             if (!lhs || res.isBinaryOp) {
                 rhs = this.build();
                 if (rhs) {
-                    if (res.precence && rhs.precedence && rhs.precedence > res.precedence) {
+                    if (res.precedence && rhs.precedence && rhs.precedence > res.precedence) {
                         var l = rhs.arguments[0];
                         ret = rhs;
                         rhs.arguments[0] = res;
