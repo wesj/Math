@@ -3,6 +3,7 @@ define(function (require, exports, module) {
 var Context = require("Context");
 var ops = require("Operator");
 var AstEvaluator = require("AstEvaluator");
+var MSet = require("MSet").MSet;
 
 var SVGNS = "http://www.w3.org/2000/svg";
 var emptyBox = String.fromCharCode(0x25A1);
@@ -73,23 +74,48 @@ SVGRenderer.prototype = {
     },
 
     beginPath: function(callback, color, width) {
-        var p = this.createElt("path", {
-            stroke: color,
-            "stroke-width": width,
-            fill: "none"
-        });
-        var d = "";
+        var d = [""];
+        var addToPaths = function(func, pt) {
+            // This isn't right at all yet
+            if ("length" in pt) {
+                if (pt.length > 0) {
+                    while(d.length < pt.length) {
+                        d.push(d[0]);
+                    }
+
+                    d = pt.map(function(path, index) {
+                        return d[index] + func + " " + path.x + " " + path.y + " "
+                    })
+                    return true;
+                }
+            } else {
+                d = d.map(function(path) {
+                    return path + func + " " + pt.x + " " + pt.y + " "
+                })
+                return true;
+            }
+            return false;
+        }
         var pathHandler = {
             moveTo: function(pt) {
-                d += "M " + pt.x + " " + pt.y + " ";
+                return addToPaths("M", pt)
             },
 
             lineTo: function(pt) {
-                d += "L " + pt.x + " " + pt.y + " ";
+                return addToPaths("L", pt)
             }
         }
+
         callback(pathHandler);
-        p.setAttribute("d", d);
+
+        d.forEach(function(path) {
+            var p = this.createElt("path", {
+                stroke: color,
+                "stroke-width": width,
+                fill: "none"
+            });
+            p.setAttribute("d", path);
+        }, this);
     },
 
     createElt: function(aName, aProps) {
@@ -135,10 +161,11 @@ Pt.prototype = {
 
 window.Plot = function(aRoot) {
     this.renderer = new SVGRenderer(aRoot);
-    this.resolution = 100;
+    this.resolution = 50;
     this.width = 200;
     this.height = 200;
     this.padding = 0;
+    this.functions = [];
 
     if (aRoot) {
         this.init(aRoot);
@@ -192,6 +219,23 @@ Plot.prototype = {
     },
 
     plotToReal: function(x, y) {
+        if (y !== y) {
+            return;
+        }
+
+        if (y && y.vals) {
+            var self = this;
+            var ret = y.vals.reduce(function(arr, val) {
+                if (val !== val) {
+                    // return arr;
+                } else {
+                    arr.push(self.plotToReal(x, val));
+                }
+                return arr;
+            }, []);
+            return ret;
+        }
+
         return new Pt(
             (x - this.minX) * (this.width-this.padding) / (this.maxX-this.minX)+this.padding,
             (this.minY - y)*(this.height-this.padding)/(this.maxY-this.minY) + this.height - this.padding
@@ -199,6 +243,12 @@ Plot.prototype = {
     },
 
     realToPlot: function(x,y) {
+        if (y instanceof MSet) {
+            return y.vals.map(function(val) {
+                return this.realToPlot(x, val);
+            }, this);
+        }
+
         return new Pt(
             (x-this.padding)/(this.width-this.padding)*(this.maxX-this.minX)+this.minX,
             (y-this.height+this.padding)/(this.height-this.padding)*(this.maxY-this.minY) - this.minY
@@ -283,6 +333,7 @@ Plot.prototype = {
         this.renderer.clear();
         this.addAxis();
         this.addGridMarkers();
+
         for (var i = 0; i < this.functions.length; i++) {
             this.drawFunction(this.functions[i]);
         }
@@ -368,8 +419,6 @@ Plot.prototype = {
         this.renderer.restore();
     },
 
-    functions: [],
-
     addFunction: function(ast) {
         this.functions.push(ast);
         this.updatePlot();
@@ -377,8 +426,25 @@ Plot.prototype = {
 
     drawFunction: function(ast) {
         var context = Context.default();
+        if (!ast || !ast.arguments) {
+            return;
+        }
+
         context.definitions[ast.arguments[0].value] = ast;
         var isFirst = true;
+
+        var drawPoint = (function(path, x, res) {
+            if (x !== x || res !== res) {
+                console.log("Esc!");
+                return;
+            }
+            var pt = this.plotToReal(x, res);
+            if (isFirst) {
+                isFirst = !path.moveTo(pt);
+            } else {
+                path.lineTo(pt);
+            }
+        }).bind(this)
 
         this.renderer.beginPath((function(path) {
             for (var x = this.minX; x <= this.maxX; x += (this.maxX-this.minX)/this.resolution) {
@@ -386,19 +452,7 @@ Plot.prototype = {
                     new ops.NumberNode(x)
                 ]);
                 var res = AstEvaluator.evaluate(eval, context);
-
-                // if (res > this.minY && res < this.maxY) {
-                    var pt = this.plotToReal(x, res);
-                    // console.log(x, res, pt);
-                    if (isFirst) {
-                        path.moveTo(pt);
-                        isFirst = false;
-                    } else {
-                        path.lineTo(pt);
-                    }
-                //} else {
-                    // console.log("Skip", x, res);
-                //}
+                drawPoint(path, x, res);
             }
         }).bind(this), "red", 2);
     },

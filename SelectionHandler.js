@@ -276,17 +276,28 @@ DeleteEditor.handleKey = function(aChar, aNode, aEvent) {
         var node = aNode;
         while (!node.classList.contains("lhs") && node.textContent === "" || node.textContent === emptyBox) {
             var prev = SelectionHandler.selectPrev(node);
-            deleteMathNode(node);
 
             if (prev) {
+                deleteMathNode(node);
                 node = prev;
             } else {
+                node = null;
                 break;
             }
         }
 
+        if (!node) {
+            node = SelectionHandler.rootNode.querySelector(".lhs");
+        }
+
         if (node.classList.contains("lhs")) {
-            SelectionHandler.setCursor(node);
+            while (node.firstChild) {
+                node.removeChild(node.firstChild);
+            }
+
+            var created = DOMHelpers.createNode("mi", {text:emptyBox});
+            node.appendChild(created);
+            SelectionHandler.setCursor(created);
         }
     }
 }
