@@ -272,7 +272,7 @@ tests.tests.push(new Test(
         new Operator.NumberNode(1.23)
     ]), [
         createNode("mi", { text:"x" }),
-        createNode("mo", { text:"*" }),
+        createNode("mo", { text:invisibleTimes }),
         createNode("mn", { text:"1.23" })
     ])
 );
