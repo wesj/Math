@@ -43,6 +43,9 @@
   min-height: 1em;
 }
 .lhs { color: green; }
+.lhs:empty {
+  content: "□";
+}
 .rhs { color: blue; }
 .equality { color: orange; }
 
@@ -160,10 +163,17 @@ ol {
   position: relative;
 }
 
+.plotdiv {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+
 #details svg|svg {
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
 }
 
 h3 {
