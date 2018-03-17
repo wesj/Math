@@ -25,7 +25,7 @@ var Editor = {
 
         this.__win = aWindow;
         // this.__win.setActive(true);
-        // this.__win.getDetails(this.details);
+        this.__win.getDetails(this.details);
     },
 
   get _currentWindow() {
@@ -42,7 +42,7 @@ var Editor = {
                 var editor = this.currentEditor;
                 if (editor) {
                     editor.handleEvent(aEvent);
-                    // this._currentWindow.getDetails(this.details);
+                    this._currentWindow.getDetails(this.details);
                 }
                 break;
 
@@ -143,17 +143,11 @@ Window.prototype = {
       if (this.root.editor) this.root.editor.deselect();
     }
   },
+
   init: function(aType) {
     this.root = document.createElement("div");
     this.root.classList.add("window");
     this.root.classList.add(aType);
-    this.root.addEventListener("mouseup", (function(aEvent) {
-      var newBcr = this.root.getBoundingClientRect();
-      if (this.bcr.width != newBcr.width || this.bcr.height != newBcr.height) {
-        this.bcr = newBcr;
-        if (this.editor) this.editor.handleResize(this.bcr);
-      }
-    }).bind(this), false);
     this.root.setActive = this.setActive.bind(this);
     this.root.setCursor = this.setCursor.bind(this);
     this.root.getDetails = this.getDetails.bind(this);
@@ -161,19 +155,6 @@ Window.prototype = {
     this.root.__window__ = this;
 
     var self = this;
-    this.root.titlebar = document.createElement("div");
-    this.root.titlebar.classList.add("titlebar");
-    this.root.titlebar.addEventListener("mousedown", function(aEvent) {
-      var d = new Dragger(self.root, aEvent);
-    });
-    this.root.closeButton = this.createButton({label: "", attrs: { class: "closebutton"}},
-    function(aEvent) {
-      aEvent.stopPropagation();
-      self.remove();
-    });
-    this.root.titlebar.appendChild(this.root.closeButton);
-    this.root.appendChild(this.root.titlebar);
-
     this.root.content = document.createElement("div");
     this.root.content.classList.add("content");
     this.root.appendChild(this.root.content);
@@ -188,6 +169,7 @@ Window.prototype = {
 
     this.bcr = this.root.getBoundingClientRect();
   },
+
   remove: function() {
     var parent = this.root.parentNode;
     parent.removeChild(this.root);
@@ -195,6 +177,7 @@ Window.prototype = {
       Editor.addEquation(null, 0, 0);
     }
   },
+
   createButton: function(aOpts, aCallback) {
     var button = document.createElement("span");
     if (aOpts.label)
@@ -207,55 +190,50 @@ Window.prototype = {
     button.addEventListener("click", aCallback, false);
     return button;
   },
+
   setCursor: function(aTarget) {
     if (this.editor) {
       this.editor.setCursor(aTarget, 0);
     }
   },
+
   getDetails: function(aNode) {
     var ret = "<div>";
-    if (this.root.editor) {
-      var edit = this.root.editor;
-      // xxx - move this into editor?
-      var isFunction = false;//edit.looksLikeDefinition();
+    if (editorCache.has(this.root)) {
+      var edit = editorCache.get(this.root);
+      var isFunction = edit.looksLikeDefinition();
       var title = "";
       var fun = "";
-      // var vars = edit.getVars();
+      var vars = edit.getVars();
+      var js = edit.toJSString();
+
+      // console.log("isFunction", isFunction);
       if (isFunction) {
-        fun = edit.toJSString();
-        /*
-        title = edit.getJSFor(this.root.editor.lhs);
-        ret +=   "<h1>" + title + "</h1>";
-        ret +=   "<h3>Function</h3>";
-        ret +=   "<code>" + fun + "</code>";
+        ret +=   "<h1>Function</h1>";
+        ret +=   "<code>" + js + "</code>";
+
         ret +=   "<h3>Plot</h3>";
-        ret +=   "<div class='plotdiv' style='width: 200px; height: 200px;'></div>";
+        ret +=   "<div class='plotdiv'></div>";
+
         ret +=   "<h3>Variables</h3>";
         ret +=   "<div>" + vars + "</div>"
-        */
-      } else if (edit.looksLikeDefinition()) {
-        // console.log("Get details");
-        title = edit.getJSFor(this.root.editor.rootNode);
-        // console.log("Get details", title);
-        /*
-        ret +=   "<h1>" + title + "</h1>";
-        ret +=   "<h3>Variable</h3>";
-        ret +=   "<code>" + edit.toJSString() + "</code>";
       } else {
         ret +=   "<h3>Code</h3>";
-        ret +=   "<code>" + edit.toJSString() + "</code>";
-        */
+        ret +=   "<code>" + js + "</code>";
       }
     } else {
       ret +=   "<code>No function available</code>";
     }
     ret += "</div>";
     aNode.innerHTML = ret;
+
     if (isFunction) {
       var plotdiv = aNode.querySelector(".plotdiv");
       if (plotdiv) {
-        var plot = new Plot(plotdiv);
-        plot.addFunction({label: title, fun: fun + " " + title + ";", lineColor: "red"});
+        var plot = Plot.create(plotdiv);
+        var ast = edit.evalCurrent();
+        // console.log("Plot", ast);
+        plot.addFunction(ast);
       } else {
         console.log("no plotdiv?");
       }

@@ -36,17 +36,8 @@ var minusPlus = String.fromCharCode(0x2213);
             var bcr = document.getElementById("output").getBoundingClientRect();
             Editor.addEquation(null);
 
-            var ast = new operators.Operator("definition", [
-                new operators.FunctionNode("y", [
-                    new operators.Variable("x")
-                ]),
-                new operators.Operator("^", [
-                    new operators.Variable("x"),
-                    new operators.NumberNode("2")
-                ])
-            ]);
-            var plot = Editor.addPlot();
-            plot.addFunction(ast);
+            // var plot = Editor.addPlot();
+            // plot.addFunction(ast);
         });
       }
     </script>

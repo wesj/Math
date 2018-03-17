@@ -251,16 +251,19 @@ SqrtEditor.handleKey = function(aChar, aNode, aEvent) {
     var row = DOMHelpers.createNode("mrow", "");
     msqrt.appendChild(row);
 
-    var node = aNode;
     if (aNode.getAttribute("class") == ("lhs selected")) {
-        node = DOMHelpers.createNode("mi", { text: emptyBox });
+        var node = DOMHelpers.createNode("mi", { text: emptyBox });
+        row.appendChild(node);
+        aNode.parentNode.insertBefore(msqrt, aNode.nextElementSibling);
     } else if (aNode.nodeName == "mo") {
-        node = DOMHelpers.createNode("mi", { text: emptyBox });
+        var node = DOMHelpers.createNode("mi", { text: emptyBox });
+        row.appendChild(node);
+        aNode.parentNode.insertBefore(msqrt, aNode.nextElementSibling);
     } else {
-        node.parentNode.insertBefore(msqrt, node);
+        aNode.parentNode.insertBefore(msqrt, aNode);
+        row.appendChild(aNode);
     }
 
-    row.appendChild(node);
     return node;
 }
 OperatorEditor.register(SqrtEditor);
