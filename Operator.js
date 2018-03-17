@@ -200,6 +200,7 @@ function Operator(node, arguments, options) {
         this.operation = node.operation;
         this.identifier = node.identifier;
         this.precedence = node.precedence;
+        this.isBinaryOp = node.isBinaryOp;
         return;
     }
 
@@ -208,8 +209,8 @@ function Operator(node, arguments, options) {
         name = node.textContent;
     }
 
-    if (this[name]) {
-        this[name](node);
+    if (OperatorNodes[name]) {
+        OperatorNodes[name].call(this, node);
     } else {
         if (name) {
             console.error("Unknown operator " + name);
@@ -239,7 +240,9 @@ Operator.prototype = {
         }
         return new Operator(node);
     },
+}
 
+var OperatorNodes = {
     "sqrt": function(node) {
         this.operation = "sqrt";
     },
@@ -252,7 +255,7 @@ Operator.prototype = {
         if (node.previousElementSibling) {
             var prev = node.previousElementSibling;
             if (prev.nodeName == "mo" && prev.textContent != "]") {
-                return this.positive();
+                return OperatorNodes.positive.call(this, node);
             }
         }
 
@@ -272,12 +275,8 @@ Operator.prototype = {
     },
 
     "-": function(node) {
-        //if (!node.previousElementSibling || node.previousElementSibling.nodeName === "mo") {
-        //    this.negative(node);
-        //    return;
-        //}
         if (this.arguments.length == 1) {
-            return this.negative(node);
+            return OperatorNodes.negative.call(this, node);
         }
 
         this.isBinaryOp = true;
@@ -323,26 +322,27 @@ Operator.prototype = {
     "definition": function(node) {
         this.operation = "definition";
         this.isBinaryOp = true;
+        this.precedence = 5000;
     }
 }
 
-Operator.prototype["="] = function(node) {
+OperatorNodes["="] = function(node) {
     if (node.classList) {
         if (node.classList.contains("equality")) {
-            this.equality();
+            OperatorNodes.equality.call(this);
         } else {
-            this.definition();
+            OperatorNodes.definition.call(this);
         }
     } else {
         throw "Undefined. Use 'equality' or 'definition'";
     }
 }
 
-Operator.prototype[invisibleTimes] = function(node) {
-    this["*"](node);
+OperatorNodes[invisibleTimes] = function(node) {
+    OperatorNodes["*"].call(this, node);
 }
 
-Operator.prototype[plusMinus] = function(node) {
+OperatorNodes[plusMinus] = function(node) {
     this.precedence = 1;
     this.operation = "plusminus";
     this.isBinaryOp = true;
