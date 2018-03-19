@@ -435,7 +435,6 @@ Plot.prototype = {
 
         var drawPoint = (function(path, x, res) {
             if (x !== x || res !== res) {
-                console.log("Esc!");
                 return;
             }
             var pt = this.plotToReal(x, res);
@@ -451,6 +450,7 @@ Plot.prototype = {
                 var eval = new ops.FunctionNode(ast.arguments[0], [
                     new ops.NumberNode(x)
                 ]);
+                console.log("Eval", eval);
                 var res = AstEvaluator.evaluate(eval, context);
                 drawPoint(path, x, res);
             }

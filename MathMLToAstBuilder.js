@@ -274,7 +274,6 @@ function KeyPressTest(dom, aAst) {
     try {
       var builder = new MathMLToAstBuilder(dom);
       var ast2 = builder.build();
-      // console.log(ast2, aAst);
       this.compareAst(ast2, aAst);
     } catch(ex) {
       tests.ok(false, ex);
