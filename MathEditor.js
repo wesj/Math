@@ -130,16 +130,18 @@ MathEditor.prototype = {
         var res = [];
         var vars = this.rootNode.querySelectorAll("mi");
         var txt = this.getJSFor(this.lhs);
-        var lhsstring = this.functionRegEx.exec(txt);
-        if (!lhsstring) lhsstring = txt;
-        else lhsstring = lhsstring[1];
+        //var lhsstring = this.functionRegEx.exec(txt);
+        //if (!lhsstring) lhsstring = txt;
+        //else lhsstring = lhsstring[1];
 
         for (var i = 0; i < vars.length; i++) {
             var varString = this.getJSFor(vars[i]);
             // only add if this looks doesn't look like the thing we are defining
-            if (lhsstring != varString && res.indexOf(varString) == -1)
+            if (varString && res.indexOf(varString) == -1) {
                 res.push(varString);
+            }
         }
+        console.log(res);
         return res;
     },
 

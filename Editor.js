@@ -204,13 +204,15 @@ Window.prototype = {
       var isFunction = edit.looksLikeDefinition();
       var title = "";
       var fun = "";
-      var vars = edit.getVars();
+      var vars = "<ul>" + edit.getVars().map(function(v) {
+        return "<li>" + v + "</li>";
+      }).join("") + "</ul>";
       var js = edit.toJSString();
 
       // console.log("isFunction", isFunction);
       if (isFunction) {
         ret +=   "<h1>Function</h1>";
-        ret +=   "<code>" + js + "</code>";
+        ret +=   "<pre><code>" + js + "</code></pre>";
 
         ret +=   "<h3>Plot</h3>";
         ret +=   "<div class='plotdiv'></div>";
@@ -220,9 +222,14 @@ Window.prototype = {
       } else {
         ret +=   "<h3>Code</h3>";
         ret +=   "<code>" + js + "</code>";
+
+        ret +=   "<h3>Variables</h3>";
+        ret +=   "<div>" + vars + "</div>"
       }
     } else {
       ret +=   "<code>No function available</code>";
+      ret +=   "<h3>Variables</h3>";
+      ret +=   "<div>" + vars + "</div>"
     }
     ret += "</div>";
     aNode.innerHTML = ret;
