@@ -37,10 +37,12 @@ var AstEvaluator = {
     },
 
     variable: function(ast, context, original) {
-        var def = context.definitions[ast.value];
-        if (def) {
-            var ret = this.evaluate(def.arguments[1], context);
-            return ret;
+        if (context) {
+            var def = context.definitions[ast.value];
+            if (def) {
+                var ret = this.evaluate(def.arguments[1], context);
+                return ret;
+            }
         }
 
         return ast;
@@ -71,12 +73,13 @@ var AstEvaluator = {
 
             for (var i = 0; i < f.parameters.length; i++) {
                 var arg = f.parameters[i];
-                var val = ast.parameters[i];
-                newContext.definitions[arg.value] = new Operator("definition");
-                newContext.definitions[arg.value].arguments = [
-                    new Variable({ textContent: arg.value }),
-                    val
-                ];
+                if (!context.definitions[arg.value]) {
+                    var val = ast.parameters[i];
+                    newContext.definitions[arg.value] = new Operator("definition", [
+                        new Variable(arg.value),
+                        val
+                    ]);
+                }
             }
 
             var ret = this.evaluate(body, newContext, ast);

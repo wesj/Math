@@ -69,41 +69,45 @@ function LogFunction() {
 }
 LogFunction.prototype = Operator.prototype;
 
-function Context() {
-    this.variables = [];
+function Context(context) {
+    if (context) {
+        this.definitions = context.definitions;
+        this.variables = context.variables;
+    } else {
+        this.definitions = {};
+        this.variables = {};
+        this.definitions.acos = new MathHelper("acos");
+        this.definitions.acosh = new MathHelper("acosh");
+        this.definitions.cos = new MathHelper("cos");
+        this.definitions.cosh = new MathHelper("cosh");
 
-    this.definitions = {}
-    this.definitions.acos = new MathHelper("acos");
-    this.definitions.acosh = new MathHelper("acosh");
-    this.definitions.cos = new MathHelper("cos");
-    this.definitions.cosh = new MathHelper("cosh");
+        this.definitions.asin = new MathHelper("asin");
+        this.definitions.asinh = new MathHelper("asinh");
+        this.definitions.sin = new MathHelper("sin");
+        this.definitions.sinh = new MathHelper("sinh");
 
-    this.definitions.asin = new MathHelper("asin");
-    this.definitions.asinh = new MathHelper("asinh");
-    this.definitions.sin = new MathHelper("sin");
-    this.definitions.sinh = new MathHelper("sinh");
+        this.definitions.atan = new MathHelper("atan");
+        this.definitions.atanh = new MathHelper("atanh");
+        this.definitions.tan = new MathHelper("tan");
+        this.definitions.tanh = new MathHelper("tanh");
+        this.definitions.abs = new MathHelper("abs");
 
-    this.definitions.atan = new MathHelper("atan");
-    this.definitions.atanh = new MathHelper("atanh");
-    this.definitions.tan = new MathHelper("tan");
-    this.definitions.tanh = new MathHelper("tanh");
-    this.definitions.abs = new MathHelper("abs");
+        this.definitions.log = new LogFunction();
 
-    this.definitions.log = new LogFunction();
+        this.definitions.round = new MathHelper("round");
 
-    this.definitions.round = new MathHelper("round");
+        this.definitions["π"] = new Operator("definition", [
+            new Variable("π"),
+            new Custom("Math.PI", function() { return Math.PI; }),
+        ]);
 
-    this.definitions["π"] = new Operator("definition", [
-        new Variable("π"),
-        new Custom("Math.PI", function() { return Math.PI; }),
-    ]);
-
-    this.definitions.e = new Operator("definition", [
-        new Variable("e"),
-        new Custom("Math.E", function() { return Math.E; }),
-    ]);
+        this.definitions.e = new Operator("definition", [
+            new Variable("e"),
+            new Custom("Math.E", function() { return Math.E; }),
+        ]);
+    }
 }
 
-exports.default = function() { return new Context() };
+exports.default = function(context) { return new Context(context) };
 
 })
